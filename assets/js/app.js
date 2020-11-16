@@ -53,9 +53,24 @@ const app = {
    */
   setListIdOnCardFormModal(event) {
     const addCardModal = document.getElementById('addCardModal');
-    const list_id = event.currentTarget.parentElement.parentElement.parentElement.parentElement.getAttribute('list-id');
+    //const list_id = event.currentTarget.parentElement.parentElement.parentElement.parentElement.getAttribute('list-id');
+    const list_id = event.currentTarget.closest('div[list-id]').getAttribute('list-id');
     addCardModal.querySelector('#formCardList_id').value = list_id;
     app.toggleCardFormModal(event);
+  },
+
+  /**
+   * Handle Add List Form submit event
+   * @param {Event} event 
+   */
+  handleAddListForm(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+
+
+    app.makeListInDOM(formData);
+    app.toggleListFormModal();
+    app.init();
   },
 
   /**
@@ -71,20 +86,6 @@ const app = {
     }
     app.makeCardInDOM(formData);
     app.toggleCardFormModal();
-    app.init();
-  },
-
-  /**
-   * Handle Add List Form submit event
-   * @param {Event} event 
-   */
-  handleAddListForm(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-
-
-    app.makeListInDOM(formData);
-    app.toggleListFormModal();
     app.init();
   },
 

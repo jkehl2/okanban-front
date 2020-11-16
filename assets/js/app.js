@@ -27,26 +27,18 @@ const app = {
 
     const closeBts = document.querySelectorAll('.close');
     closeBts.forEach((buttonClose) => {
-      buttonClose.removeEventListener('click', app.toggleListFormModal);
-      buttonClose.addEventListener('click', app.toggleListFormModal);
+      buttonClose.removeEventListener('click', app.toggleFormModal);
+      buttonClose.addEventListener('click', app.toggleFormModal);
     });
   },
 
   /**
    * Toggle List Form modal div display 
    */
-  toggleListFormModal(_) {
-    document.getElementById('addListModal').classList.toggle('is-active');
+  toggleFormModal(event) {
+    event.currentTarget.closest('.modal').classList.toggle('is-active');
   },
-
-  /**
-   * Toggle Card Form modal div display 
-   * @param {Event} event 
-   */
-  toggleCardFormModal(event) {
-    document.getElementById('addCardModal').classList.toggle('is-active');
-  },
-
+  
   /**
    * Set ListId On Card Form Modal 
    * @param {Event} event 

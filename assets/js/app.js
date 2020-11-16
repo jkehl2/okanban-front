@@ -24,21 +24,34 @@ const app = {
       addCardBt.removeEventListener('click', app.setListIdOnCardFormModal);
       addCardBt.addEventListener('click', app.setListIdOnCardFormModal);
     });
-
-    const closeBts = document.querySelectorAll('.close');
+    let closeBts = document.getElementById('addListModal').querySelectorAll('.close');
     closeBts.forEach((buttonClose) => {
-      buttonClose.removeEventListener('click', app.toggleFormModal);
-      buttonClose.addEventListener('click', app.toggleFormModal);
+      buttonClose.removeEventListener('click', app.toggleListFormModal);
+      buttonClose.addEventListener('click', app.toggleListFormModal);
+    });
+
+    let closeBts = document.getElementById('addCardModal').querySelectorAll('.close');
+    closeBts.forEach((buttonClose) => {
+      buttonClose.removeEventListener('click', app.toggleCardFormModal);
+      buttonClose.addEventListener('click', app.toggleCardFormModal);
     });
   },
 
   /**
    * Toggle List Form modal div display 
    */
-  toggleFormModal(event) {
-    event.currentTarget.closest('.modal').classList.toggle('is-active');
+  toggleListFormModal(_) {
+    document.getElementById('addListModal').classList.toggle('is-active');
   },
-  
+
+  /**
+   * Toggle Card Form modal div display 
+   * @param {Event} event 
+   */
+  toggleCardFormModal(_) {
+    document.getElementById('addCardModal').classList.toggle('is-active');
+  },
+
   /**
    * Set ListId On Card Form Modal 
    * @param {Event} event 

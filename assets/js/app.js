@@ -1,5 +1,6 @@
 // on objet qui contient des fonctions
 let listCount = 1;
+let cardCount = 1;
 const app = {
   init: function () {
     console.log('app.init !');
@@ -123,6 +124,7 @@ const app = {
 
       const newCard = document.importNode(card_template.content, true);
       newCard.querySelector('.columns').querySelectorAll(".column")[0].textContent = formData.get('formCardName');
+      newCard.querySelector('div[card-id]').setAttribute('card-id', `Card_${cardCount++}`);
       card_container.appendChild(newCard);
     }
   },

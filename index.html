@@ -216,16 +216,17 @@
     <div class="modal" id="addListModal">
         <div class="modal-background"></div>
         <div class="modal-card">
-            <form id="modalForm" action="" method="POST">
+            <form id="modalListForm" action="" method="POST">
                 <header class="modal-card-head">
                     <p class="modal-card-title">Ajouter une liste</p>
                     <button class="delete close" type="button" aria-label="close"></button>
                 </header>
                 <section class="modal-card-body">
                     <div class="field">
-                        <label class="label">Nom</label>
+                        <label class="label" for="formListName">Nom</label>
                         <div class="control">
-                            <input type="text" class="input" name="name" value="" placeholder="Nom de la liste">
+                            <input id="formListName" type="text" class="input" name="formListName" value=""
+                                placeholder="Nom de la liste">
                         </div>
                     </div>
                 </section>
@@ -236,6 +237,33 @@
             </form>
         </div>
     </div>
+
+    <div class="modal" id="addCardModal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <form id="modalCardForm" action="" method="POST">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Ajouter une carte</p>
+                    <button class="delete close" type="button" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="field">
+                        <label class="label" for="formCardName">Nom</label>
+                        <div class="control">
+                            <input id="formCardName" type="text" class="input" name="formCardName" value=""
+                                placeholder="Titre de la carte">
+                        </div>
+                        <input type="hidden" name="formCardList_id" id="formCardList_id" value="">
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success">Save changes</button>
+                    <button class="button close" type="button">Cancel</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+
     <template id="template_list">
         <!-- list -->
         <div class="column is-one-quarter panel" list-id="A">
@@ -259,7 +287,7 @@
                     </div>
 
                     <div class="column is-narrow">
-                        <a href="#" class="is-pulled-right">
+                        <a href="#" class="is-pulled-right addCardBt">
                             <span class="icon is-small has-text-white">
                                 <i class="fas fa-plus"></i>
                             </span>
@@ -267,7 +295,9 @@
                     </div>
                 </div>
             </div>
-            <div class="panel-block is-block has-background-light"><!-- cards --></div>
+            <div class="panel-block is-block has-background-light">
+                <!-- cards -->
+            </div>
         </div>
         <!--/ list -->
     </template>

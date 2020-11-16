@@ -30,7 +30,7 @@ const app = {
       buttonClose.addEventListener('click', app.toggleListFormModal);
     });
 
-    let closeBts = document.getElementById('addCardModal').querySelectorAll('.close');
+    closeBts = document.getElementById('addCardModal').querySelectorAll('.close');
     closeBts.forEach((buttonClose) => {
       buttonClose.removeEventListener('click', app.toggleCardFormModal);
       buttonClose.addEventListener('click', app.toggleCardFormModal);

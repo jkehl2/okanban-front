@@ -9,9 +9,9 @@ const oKamban = {
   /**
    * @method init Initialize oKamban application 
    */
-  async init() {
+  init() {
     oKamban.initListener();
-    oKamban.domUpdates.makeListWithCardsFromApi(await oKamban.api.getListsFromAPI());
+    oKamban.refreshOkamban();
   },
 
   elements: {
@@ -26,22 +26,86 @@ const oKamban = {
   },
   api: {
     base_url: 'http://localhost:3000',
+    list: {
+      /** 
+       * @method getListsFromAPI Get all list from API
+       * @returns {Promise} Array of List Object from API
+       */
+      async getListsFromAPI() {
+        try {
+          return await (await fetch(`${oKamban.api.base_url}/list`)).json();
+        } catch (err) {
+          console.error(err);
+        }
+      },
 
-    /** 
-     * @method getListsFromAPI Get all list from API
-     * @returns {Promise} Array of List Object from API
-     */
-    async getListsFromAPI() {
-      return await (await fetch(`${oKamban.api.base_url}/list`)).json();
+      /** 
+       * @method postNewListToAPI Post a new List to API
+       * @param {any} newList A new List Object for sending to API
+       * @returns {Promise} A List Object from API with id
+       */
+      async postNewListToAPI(newList) {
+        try {
+          let formBody = [];
+          for (let property in newList) {
+            let encodedKey = encodeURIComponent(property);
+            let encodedValue = encodeURIComponent(newList[property]);
+            formBody.push(encodedKey + "=" + encodedValue);
+          }
+          formBody = formBody.join("&");
+          return await (await fetch(`${oKamban.api.base_url}/list`, {
+            headers: {
+              'Authorization': 'Bearer token',
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            method: "POST",
+            body: formBody
+          })).json();
+        } catch (err) {
+          console.error(err);
+        }
+      },
     },
+    card: {
+      /** 
+       * @method getCardsFromAPI Get all Cards from API
+       * @returns {Promise} Array of Card Object from API
+       */
+      async getCardsFromAPI() {
+        try {
+          const response = await fetch(`${oKamban.api.base_url}/card`);
+          return await response.json();
+        } catch (err) {
+          console.error(err);
+        }
+      },
 
-    /** 
-     * @method getCardsFromAPI Get all Cards from API
-     * @returns {Promise} Array of Card Object from API
-     */
-    async getCardsFromAPI() {
-      const response = await fetch(`${oKamban.api.base_url}/card`);
-      return await response.json();
+      /** 
+       * @method postNewCardToAPI Post a new Card to API
+       * @param {any} newCard A new Card Object for sending to API
+       * @returns {Promise} A Card Object from API with id
+       */
+      async postNewCardToAPI(newCard) {
+        try {
+          let formBody = [];
+          for (let property in newCard) {
+            let encodedKey = encodeURIComponent(property);
+            let encodedValue = encodeURIComponent(newCard[property]);
+            formBody.push(encodedKey + "=" + encodedValue);
+          }
+          formBody = formBody.join("&");
+          return await (await fetch(`${oKamban.api.base_url}/card`, {
+            headers: {
+              'Authorization': 'Bearer token',
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            method: "POST",
+            body: formBody
+          })).json();
+        } catch (err) {
+          console.error(err);
+        }
+      },
     }
   },
   handleEvent: {
@@ -135,15 +199,37 @@ const oKamban = {
      * @method makeListInDOM  Make and Add a new Liste in body
      * @param {FormData} formData form data from AddListModal Form
      */
-    makeListInDOM(formData) {
+    async makeListInDOM(formData) {
+      const listTemp = await oKamban.api.list.postNewListToAPI({
+        name: formData.get('formListName')
+      });
       if ("content" in document.createElement('template')) {
         const newList = document.importNode(oKamban.elements.templateList.content, true);
-        const listId = `List_${oKamban.listCount++}`;
-        newList.querySelector('div[list-id]').setAttribute('list-id', listId);
+        // const listId = `List_${oKamban.listCount++}`;
+        newList.querySelector('div[list-id]').setAttribute('list-id', listTemp.id);
         newList.querySelector('h2').textContent = formData.get('formListName');
         const addCardBt = newList.querySelector('.addCardBt');
-        addCardBt.addEventListener('click', oKamban.handleEvent.clickAddCardModal(listId));
+        addCardBt.addEventListener('click', oKamban.handleEvent.clickAddCardModal(listTemp.id));
         oKamban.elements.containerList.appendChild(newList);
+      }
+    },
+
+    /**
+     * @method makeCardInList Make and Add a new Card in a spécific List
+     * @param {FormData} formData form data from AddListModal Form
+     */
+    async makeCardInList(formData) {
+      const cardTemp = await oKamban.api.card.postNewCardToAPI({
+        title: formData.get('formCardName'),
+        list_id : formData.get('formCardList_id')
+      });
+      if ("content" in document.createElement('template')) {
+        const target_list = oKamban.domUpdates.tools.queryListElmtById(formData.get('formCardList_id'));
+        const card_container = target_list.querySelector('.panel-block');
+        const newCard = document.importNode(oKamban.elements.templateCard.content, true);
+        newCard.querySelector('.columns').querySelectorAll('.column')[0].textContent = formData.get('formCardName');
+        newCard.querySelector('div[card-id]').setAttribute('card-id', cardTemp.id);
+        card_container.appendChild(newCard);
       }
     },
 
@@ -152,7 +238,6 @@ const oKamban = {
      * @param {Array} lists Array of list Object from API response
      */
     makeListWithCardsFromApi(lists) {
-      console.log(lists);
       if ("content" in document.createElement('template')) {
         lists.sort((apiListObj1, apiListObj2) => {
           return apiListObj1.position < apiListObj2.position ? -1 : (apiListObj1.position > apiListObj2.position ? 1 : 0);
@@ -184,23 +269,8 @@ const oKamban = {
           cardDiv = newCard.querySelector('div[card-id]');
           cardDiv.setAttribute('card-id', apiCardObj.id);
           cardDiv.style.background = apiCardObj.color;
-          cardContainer.appendChild(newCard);          
+          cardContainer.appendChild(newCard);
         });
-      }
-    },
-
-    /**
-     * @method makeCardInList Make and Add a new Card in a spécific List
-     * @param {FormData} formData form data from AddListModal Form
-     */
-    makeCardInList(formData) {
-      if ("content" in document.createElement('template')) {
-        const target_list = oKamban.domUpdates.tools.queryListElmtById(formData.get('formCardList_id'));
-        const card_container = target_list.querySelector('.panel-block');
-        const newCard = document.importNode(oKamban.elements.templateCard.content, true);
-        newCard.querySelector('.columns').querySelectorAll('.column')[0].textContent = formData.get('formCardName');
-        newCard.querySelector('div[card-id]').setAttribute('card-id', `Card_${oKamban.cardCount++}`);
-        card_container.appendChild(newCard);
       }
     }
   },
@@ -229,6 +299,12 @@ const oKamban = {
     });
   },
 
+  /**
+   * @method refreshOkamban Refresh All oKamban lists and cards from API
+   */
+  async refreshOkamban() {
+    oKamban.domUpdates.makeListWithCardsFromApi(await oKamban.api.list.getListsFromAPI());
+  }
 };
 
 // Start oKamban application on DOM Content Loaded Event

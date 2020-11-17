@@ -249,7 +249,7 @@ const oKamban = {
           // const listId = `List_${oKamban.listCount++}`;
           newList.querySelector('div[list-id]').setAttribute('list-id', listTmp.id);
           newList.querySelector('h2').textContent = formData.get('formListName');
-          const addCardBt = newList.querySelector('.addCardBt');
+          const addCardBt = newList.querySelector('.fa-plus');
           addCardBt.addEventListener('click', oKamban.handleEvent.clickAddCardModal(listTmp.id));
           oKamban.elements.containerList.appendChild(newList);
         }

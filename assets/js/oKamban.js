@@ -33,7 +33,12 @@ const oKamban = {
        */
       async getListsFromAPI() {
         try {
-          return await (await fetch(`${oKamban.api.base_url}/list`)).json();
+          const response = await fetch(`${oKamban.api.base_url}/list`);
+          if (response.status == 200) {
+            return await response.json();
+          } else {
+            throw new Error('Invalide server response');
+          }
         } catch (err) {
           console.error(err);
         }
@@ -53,14 +58,19 @@ const oKamban = {
             formBody.push(encodedKey + "=" + encodedValue);
           }
           formBody = formBody.join("&");
-          return await (await fetch(`${oKamban.api.base_url}/list`, {
+          const response = await fetch(`${oKamban.api.base_url}/list`, {
             headers: {
               'Authorization': 'Bearer token',
               'Content-Type': 'application/x-www-form-urlencoded'
             },
             method: "POST",
             body: formBody
-          })).json();
+          });
+          if (response.status == 200) {
+            return await response.json();
+          } else {
+            throw new Error('Invalide server response');
+          }
         } catch (err) {
           console.error(err);
         }
@@ -74,7 +84,11 @@ const oKamban = {
       async getCardsFromAPI() {
         try {
           const response = await fetch(`${oKamban.api.base_url}/card`);
-          return await response.json();
+          if (response.status == 200) {
+            return await response.json();
+          } else {
+            throw new Error('Invalide server response');
+          }
         } catch (err) {
           console.error(err);
         }
@@ -94,14 +108,19 @@ const oKamban = {
             formBody.push(encodedKey + "=" + encodedValue);
           }
           formBody = formBody.join("&");
-          return await (await fetch(`${oKamban.api.base_url}/card`, {
+          const response = await fetch(`${oKamban.api.base_url}/card`, {
             headers: {
               'Authorization': 'Bearer token',
               'Content-Type': 'application/x-www-form-urlencoded'
             },
             method: "POST",
             body: formBody
-          })).json();
+          });
+          if (response.status == 200) {
+            return await response.json();
+          } else {
+            throw new Error('Invalide server response');
+          }
         } catch (err) {
           console.error(err);
         }
@@ -221,7 +240,7 @@ const oKamban = {
     async makeCardInList(formData) {
       const cardTemp = await oKamban.api.card.postNewCardToAPI({
         title: formData.get('formCardName'),
-        list_id : formData.get('formCardList_id')
+        list_id: formData.get('formCardList_id')
       });
       if ("content" in document.createElement('template')) {
         const target_list = oKamban.domUpdates.tools.queryListElmtById(formData.get('formCardList_id'));

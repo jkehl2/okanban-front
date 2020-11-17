@@ -1,5 +1,5 @@
 /**
- * @module oKamban oKambanlication module
+ * @module oKamban oKamban application module
  * @version 1.0.0
  * @author jkehl
  */

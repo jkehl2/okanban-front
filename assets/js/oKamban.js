@@ -9,8 +9,9 @@ const oKamban = {
   /**
    * @method init Initialize oKamban application 
    */
-  init: function () {
+  async init() {
     oKamban.initListener();
+    oKamban.domUpdates.makeListWithCardsFromApi(await oKamban.api.getListsFromAPI());
   },
 
   elements: {
@@ -23,7 +24,26 @@ const oKamban = {
     templateCard: document.getElementById('template_card'),
     containerList: document.querySelector('.card-lists')
   },
+  api: {
+    base_url: 'http://localhost:3000',
 
+    /** 
+     * @method getListsFromAPI Get all list from API
+     * @returns {Promise} Array of List Object from API
+     */
+    async getListsFromAPI() {
+      return await (await fetch(`${oKamban.api.base_url}/list`)).json();
+    },
+
+    /** 
+     * @method getCardsFromAPI Get all Cards from API
+     * @returns {Promise} Array of Card Object from API
+     */
+    async getCardsFromAPI() {
+      const response = await fetch(`${oKamban.api.base_url}/card`);
+      return await response.json();
+    }
+  },
   handleEvent: {
     tools: {
       /**
@@ -128,6 +148,48 @@ const oKamban = {
     },
 
     /**
+     * @method makeListWithCardsFromApi  Make and Add new Liste with cards in body from API Response
+     * @param {Array} lists Array of list Object from API response
+     */
+    makeListWithCardsFromApi(lists) {
+      console.log(lists);
+      if ("content" in document.createElement('template')) {
+        lists.sort((apiListObj1, apiListObj2) => {
+          return apiListObj1.position < apiListObj2.position ? -1 : (apiListObj1.position > apiListObj2.position ? 1 : 0);
+        }).forEach((apiListObj) => {
+          const newList = document.importNode(oKamban.elements.templateList.content, true);
+          newList.querySelector('div[list-id]').setAttribute('list-id', apiListObj.id);
+          newList.querySelector('h2').textContent = apiListObj.name;
+          const addCardBt = newList.querySelector('.addCardBt');
+          addCardBt.addEventListener('click', oKamban.handleEvent.clickAddCardModal(apiListObj.id));
+          const cardContainer = newList.querySelector('.panel-block');
+          oKamban.domUpdates.makeCardFromApiToList(apiListObj.cards, cardContainer);
+          oKamban.elements.containerList.appendChild(newList);
+        });
+      }
+    },
+
+    /**
+     * @method makeCardFromApiToList  Make and Add new Liste with cards in body from API Response
+     * @param {Array} cards Array of cards Object from API response
+     * @param {HTMLElement} cardContainer Card container
+     */
+    makeCardFromApiToList(cards, cardContainer) {
+      if ("content" in document.createElement('template')) {
+        cards.sort((apiCardObj1, apiCardObj2) => {
+          return apiCardObj1.position < apiCardObj2.position ? -1 : (apiCardObj1.position > apiCardObj2.position ? 1 : 0);
+        }).forEach((apiCardObj) => {
+          const newCard = document.importNode(oKamban.elements.templateCard.content, true);
+          newCard.querySelector('.columns').querySelectorAll('.column')[0].textContent = apiCardObj.title;
+          cardDiv = newCard.querySelector('div[card-id]');
+          cardDiv.setAttribute('card-id', apiCardObj.id);
+          cardDiv.style.background = apiCardObj.color;
+          cardContainer.appendChild(newCard);          
+        });
+      }
+    },
+
+    /**
      * @method makeCardInList Make and Add a new Card in a spécific List
      * @param {FormData} formData form data from AddListModal Form
      */
@@ -165,7 +227,8 @@ const oKamban = {
     closeBts.forEach((buttonClose) => {
       buttonClose.addEventListener('click', oKamban.handleEvent.clickToggleHTMLElement(oKamban.elements.addCardModal));
     });
-  }
+  },
+
 };
 
 // Start oKamban application on DOM Content Loaded Event

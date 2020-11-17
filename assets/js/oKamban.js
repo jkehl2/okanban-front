@@ -78,7 +78,7 @@ const oKamban = {
 
     /**
      * @method clickAddCardModal Handle click event on addCardModal Form and set listId on this form
-     * @param {String} listId - listId to set to addCardModal Form
+     * @param {String} listId - listId value to set listId in addCardModal Form
      * @return {CallableFunction} a callable function to Handle click event on addCardModal Form and set listId on this form 
      */
     clickAddCardModal(listId) {

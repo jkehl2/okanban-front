@@ -14,57 +14,65 @@ const app = {
   handleEvent: {
     tools: {
       /**
-       * Toggle Modal Form div display 
-       * @param {HTMLElement} htmlElmt - Element HTML à afficher/masquer
+       * Toggle display HTML Element 
+       * @param {HTMLElement} htmlElmt - HTML Element to toggle display 
        */
       toggleHTMLElement(htmlElmt) {
         htmlElmt.classList.toggle('is-active');
       },
+
       /**
-       * Get Data Form from submit event 
-       * @param {Event} event - submit event
+       * Get Data Form from Form submit event 
+       * @param {Event} event - Submit Form event
        */
-      getDataForm(event) {
+      getDataFormFrmFormSubmit(event) {
         event.preventDefault();
         return formData = new FormData(event.target);
       },
     },
 
     /**
-     * Toggle List Form modal div display 
+     * Handle click on button for toggle display HTML Element  
+     * @param {HTMLElement} htmlElmt - HTML Element to toggle display 
      */
-    toggleAddListModal() {
-      app.handleEvent.tools.toggleHTMLElement(app.elements.addListModal);
+    clickToggleHTMLElement(htmlElmt) {
+      return (_) => {
+        app.handleEvent.tools.toggleHTMLElement(htmlElmt);
+      };
     },
 
     /**
-     * Toggle Card Form modal div display 
-     */
-    toggleAddCardModal() {
-      app.handleEvent.tools.toggleHTMLElement(app.elements.addCardModal);
-    },
-
-    /**
-     * Handle Submit event Form for AddListForm
-     * @param {Event} event 
+     * Handle Submit event on AddListModal Form
+     * @param {Event} event - Submit event on AddListModal Form
      */
     submitAddListForm(event) {
-      var formData = app.handleEvent.tools.getDataForm(event);
+      var formData = app.handleEvent.tools.getDataFormFrmFormSubmit(event);
       app.domUpdates.makeListInDOM(formData);
-      app.handleEvent.toggleAddListModal();
+      app.handleEvent.tools.toggleHTMLElement(app.elements.addListModal);
       app.refreshListener();
     },
 
     /**
-     * Handle Submit event Form for AddCardForm
-     * @param {Event} event 
+     * Handle Submit event on AddCardModal Form
+     * @param {Event} event - Submit event on AddListModal Form
      */
     submitAddCardForm(event) {
-      var formData = app.handleEvent.tools.getDataForm(event);
-      app.domUpdates.makeCardInDOM(formData);
-      app.handleEvent.toggleAddCardModal();
+      var formData = app.handleEvent.tools.getDataFormFrmFormSubmit(event);
+      app.domUpdates.makeCardInList(formData);
+      app.handleEvent.tools.toggleHTMLElement(app.elements.addCardModal);
       app.refreshListener();
     },
+
+    /**
+     * Handle click event on addCardModal Form and set  ListId on this form
+     * @param {Event} event 
+     */
+    clickAddCardModal(event) {
+      const addCardModal = document.getElementById('addCardModal');
+      const list_id = event.currentTarget.closest('div[list-id]').getAttribute('list-id');
+      addCardModal.querySelector('#formCardList_id').value = list_id;
+      app.handleEvent.tools.toggleHTMLElement(app.elements.addCardModal);
+    }
   },
 
   domUpdates: {
@@ -89,7 +97,7 @@ const app = {
      * Make and Add a new Card in a spécific List
      * @param {FormData} formData form data from AddListModal Form
      */
-    makeCardInDOM(formData) {
+    makeCardInList(formData) {
       if ("content" in document.createElement("template")) {
         const card_template = document.querySelector("#template_card");
         const target_list = document.querySelector(`div[list-id="${formData.get('formCardList_id')}"]`);
@@ -110,51 +118,33 @@ const app = {
     // Submit Event Listener on "AddListModal" Form
     document.getElementById('modalListForm').removeEventListener('submit', app.handleEvent.submitAddListForm);
     document.getElementById('modalListForm').addEventListener('submit', app.handleEvent.submitAddListForm);
-
-
     // Click Event Listener on "add list" Button
-    document.getElementById('addListButton').removeEventListener('click', app.handleEvent.toggleAddListModal);
-    document.getElementById('addListButton').addEventListener('click', app.handleEvent.toggleAddListModal);
-
-
+    document.getElementById('addListButton').removeEventListener('click', app.handleEvent.clickToggleHTMLElement(app.elements.addListModal));
+    document.getElementById('addListButton').addEventListener('click', app.handleEvent.clickToggleHTMLElement(app.elements.addListModal));
     // Click Event Listener on all close Button for "AddListModal"
     let closeBts = document.getElementById('addListModal').querySelectorAll('.close');
     closeBts.forEach((buttonClose) => {
-      buttonClose.removeEventListener('click', app.handleEvent.toggleAddListModal);
-      buttonClose.addEventListener('click', app.handleEvent.toggleAddListModal);
+      buttonClose.removeEventListener('click', app.handleEvent.clickToggleHTMLElement(app.elements.addListModal));
+      buttonClose.addEventListener('click', app.handleEvent.clickToggleHTMLElement(app.elements.addListModal));
     });
+
 
     // Submit Event Listener on "AddCardModal" Form
     document.getElementById('modalCardForm').removeEventListener('submit', app.handleEvent.submitAddCardForm);
     document.getElementById('modalCardForm').addEventListener('submit', app.handleEvent.submitAddCardForm);
-
-
     // Click Event Listener on all "add card" Button
     const addCardBts = document.querySelectorAll('.addCardBt');
     addCardBts.forEach((addCardBt) => {
-      addCardBt.removeEventListener('click', app.setListIdOnCardFormModal);
-      addCardBt.addEventListener('click', app.setListIdOnCardFormModal);
+      addCardBt.removeEventListener('click', app.handleEvent.clickAddCardModal);
+      addCardBt.addEventListener('click', app.handleEvent.clickAddCardModal);
     });
-
     // Click Event Listener on all close Button for "AddCardModal"
     closeBts = document.getElementById('addCardModal').querySelectorAll('.close');
     closeBts.forEach((buttonClose) => {
-      buttonClose.removeEventListener('click', app.handleEvent.toggleAddCardModal);
-      buttonClose.addEventListener('click', app.handleEvent.toggleAddCardModal);
+      buttonClose.removeEventListener('click', app.handleEvent.clickToggleHTMLElement(app.elements.addCardModal));
+      buttonClose.addEventListener('click', app.handleEvent.clickToggleHTMLElement(app.elements.addCardModal));
     });
-  },
-
-  /**
-   * Set ListId On Card Form Modal 
-   * @param {Event} event 
-   */
-  setListIdOnCardFormModal(event) {
-    const addCardModal = document.getElementById('addCardModal');
-    //const list_id = event.currentTarget.parentElement.parentElement.parentElement.parentElement.getAttribute('list-id');
-    const list_id = event.currentTarget.closest('div[list-id]').getAttribute('list-id');
-    addCardModal.querySelector('#formCardList_id').value = list_id;
-    app.handleEvent.toggleAddCardModal(event);
-  },
+  }
 };
 
 // on accroche un écouteur d'évènement sur le document : quand le chargement est terminé, on lance app.init

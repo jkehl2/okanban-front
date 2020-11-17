@@ -11,11 +11,11 @@ const oKamban = {
   },
 
   elements: {
-    addListModalAddButton : document.getElementById('addListButton'),
+    addListModalAddButton: document.getElementById('addListButton'),
     addListModal: document.getElementById('addListModal'),
-    addListModalForm : document.getElementById('modalListForm'),
+    addListModalForm: document.getElementById('modalListForm'),
     addCardModal: document.getElementById('addCardModal'),
-    addCardModalForm : document.getElementById('modalCardForm'),
+    addCardModalForm: document.getElementById('modalCardForm')
   },
 
   handleEvent: {
@@ -31,6 +31,7 @@ const oKamban = {
       /**
        * Get Data Form from Form submit event 
        * @param {Event} event - Submit Form event
+       * @returns {FormData} A FormData construct with event target Form Inputs
        */
       getDataFormFrmFormSubmit(event) {
         event.preventDefault();
@@ -39,8 +40,9 @@ const oKamban = {
     },
 
     /**
-     * Handle click on button for toggle display HTML Element  
+     * Handle click on toggle display HTML Element button   
      * @param {HTMLElement} htmlElmt - HTML Element to toggle display 
+     * @returns {CallableFunction} a callable function to Handle click on toggle display HTML Element button 
      */
     clickToggleHTMLElement(htmlElmt) {
       return (_) => {
@@ -88,9 +90,9 @@ const oKamban = {
      * @param {FormData} formData form data from AddListModal Form
      */
     makeListInDOM(formData) {
-      if ("content" in document.createElement("template")) {
-        const list_template = document.querySelector("#template_list");
-        const list_container = document.querySelector(".card-lists");
+      if ("content" in document.createElement('template')) {
+        const list_template = document.querySelector('#template_list');
+        const list_container = document.querySelector('.card-lists');
 
         const newList = document.importNode(list_template.content, true);
         newList.querySelector('div[list-id]').setAttribute('list-id', `List_${oKamban.listCount++}`);
@@ -105,17 +107,17 @@ const oKamban = {
      * @param {FormData} formData form data from AddListModal Form
      */
     makeCardInList(formData) {
-      if ("content" in document.createElement("template")) {
-        const card_template = document.querySelector("#template_card");
+      if ("content" in document.createElement('template')) {
+        const card_template = document.querySelector('#template_card');
         const target_list = document.querySelector(`div[list-id="${formData.get('formCardList_id')}"]`);
-        const card_container = target_list.querySelector(".panel-block");
+        const card_container = target_list.querySelector('.panel-block');
 
         const newCard = document.importNode(card_template.content, true);
-        newCard.querySelector('.columns').querySelectorAll(".column")[0].textContent = formData.get('formCardName');
+        newCard.querySelector('.columns').querySelectorAll('.column')[0].textContent = formData.get('formCardName');
         newCard.querySelector('div[card-id]').setAttribute('card-id', `Card_${oKamban.cardCount++}`);
         card_container.appendChild(newCard);
       }
-    },
+    }
   },
 
   /**
@@ -154,5 +156,5 @@ const oKamban = {
   }
 };
 
-// on accroche un écouteur d'évènement sur le document : quand le chargement est terminé, on lance oKamban.init
+// Start oKamban application on DOM Content Loaded Event
 document.addEventListener('DOMContentLoaded', oKamban.init);

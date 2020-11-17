@@ -160,11 +160,6 @@ const oKamban = {
 
     // Submit Event Listener on "AddCardModal" Form
     oKamban.elements.addCardModalForm.addEventListener('submit', oKamban.handleEvent.submitAddCardForm);
-    // Click Event Listener on all "add card" Button
-    const addCardBts = document.querySelectorAll('.addCardBt');
-    addCardBts.forEach((addCardBt) => {
-      addCardBt.addEventListener('click', oKamban.handleEvent.clickAddCardModal);
-    });
     // Click Event Listener on all close Button for "AddCardModal"
     closeBts = document.getElementById('addCardModal').querySelectorAll('.close');
     closeBts.forEach((buttonClose) => {

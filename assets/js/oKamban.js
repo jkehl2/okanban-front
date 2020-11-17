@@ -32,8 +32,9 @@ const oKamban = {
       async getListsFromAPI() {
         try {
           const response = await fetch(`${oKamban.api.base_url}/list`);
+          const data = await response.json();
           if (response.status == 200) {
-            return await response.json();
+            return data;
           } else if (data.error) {
             console.log(data.error);
             alert(data.error);
@@ -61,8 +62,9 @@ const oKamban = {
             method: "POST",
             body: oKamban.api.asUrlFormEncoded(newList)
           });
+          const data = await response.json();
           if (response.status == 200) {
-            return await response.json();
+            return data;
           } else if (data.error) {
             console.log(data.error);
             alert(data.error);
@@ -83,8 +85,9 @@ const oKamban = {
       async getCardsFromAPI() {
         try {
           const response = await fetch(`${oKamban.api.base_url}/card`);
+          const data = await response.json();
           if (response.status == 200) {
-            return await response.json();
+            return data;
           } else if (data.error) {
             console.log(data.error);
             alert(data.error);
@@ -114,7 +117,7 @@ const oKamban = {
           });
           const data = await response.json();
           if (response.status == 200) {
-            return await response.json();
+            return data;
           } else if (data.error) {
             console.log(data.error);
             alert(data.error);

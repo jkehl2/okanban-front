@@ -463,6 +463,8 @@ const oKamban = {
      */
     async deleteCardFromList(card, cardId, listId) {
       await oKamban.api.card.deleteCardById(cardId);
+      // TODO NE RIEN DELTE SI LA REQUETE VERS L'API ne se passe pas bien
+
       card.remove();
 
       // DELETE CARD IN TEMP IMAGE oKamban.data

@@ -128,6 +128,35 @@ const oKamban = {
         } catch (err) {
           console.error(err);
         }
+      },
+
+      /** 
+       * @method deleteCardById Delete a Card by ID
+       * @param {String} cardId Target Card cardId to delete
+       */
+      async deleteCardById(cardId) {
+        try {
+          const response = await fetch(`${oKamban.api.base_url}/cardId`, {
+            headers: {
+              'Authorization': 'Bearer token',
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            method: "DELETE"
+          });
+          const data = await response.json();
+          console.log(data);
+          if (response.status == 200) {
+            return data;
+          } else if (data.error) {
+            console.log(data.error);
+            alert(data.error);
+            return null;
+          } else {
+            throw new Error('Unexpected server error occured');
+          }
+        } catch (err) {
+          console.error(err);
+        }
       }
     },
 
@@ -209,7 +238,21 @@ const oKamban = {
         addCardModal.querySelector('#formCardList_id').value = listId;
         oKamban.handleEvent.tools.toggleHTMLElement(oKamban.elements.addCardModal);
       }
+    },
+
+    /**
+     * @method clickDeleteCardOnList Handle click event on deleteCard button
+     * @param {String} cardId - Target Card cardId to delete
+     * @return {CallableFunction} a callable function to Handle click event on deleteCard button 
+     */
+    clickDeleteCardOnList(cardId) {
+      return (event) => {
+        console.log('DELETE CARD ', cardId);
+        oKamban.domUpdates.deleteCardFromList(event.target.closest('div[card-id]'), cardId);
+      }
     }
+
+
   },
 
   domUpdates: {
@@ -257,6 +300,16 @@ const oKamban = {
     },
 
     /**
+     * @method deleteCardFromList Remove a card from a target list.
+     * @param {HTMLElement} card Card HTML ELement to delete
+     * @param {String} cardId Target Card cardId to delete
+     */
+    async deleteCardFromList(card, cardId) {
+      await oKamban.api.card.deleteCardById(cardId);
+      card.remove();
+    },
+
+    /**
      * @method makeCardInList Make and Add a new Card in a spécific List
      * @param {FormData} formData form data from AddListModal Form
      */
@@ -277,6 +330,10 @@ const oKamban = {
           const newCard = document.importNode(oKamban.elements.templateCard.content, true);
           newCard.querySelector('.columns').querySelectorAll('.column')[0].textContent = formData.get('formCardName');
           newCard.querySelector('div[card-id]').setAttribute('card-id', cardTmp.id);
+
+          const deleteCardBt = newCard.querySelector('.fa-trash-alt').closest('a');
+          deleteCardBt.addEventListener('click', oKamban.handleEvent.clickDeleteCardOnList(cardTmp.id));
+
           card_container.appendChild(newCard);
         }
       }
@@ -300,6 +357,7 @@ const oKamban = {
           const cardContainer = newList.querySelector('.panel-block');
           oKamban.domUpdates.makeCardFromApiToList(apiListObj.cards, cardContainer);
           oKamban.elements.containerList.appendChild(newList);
+
         });
       }
     },
@@ -319,6 +377,8 @@ const oKamban = {
           cardDiv = newCard.querySelector('div[card-id]');
           cardDiv.setAttribute('card-id', apiCardObj.id);
           cardDiv.style.background = apiCardObj.color;
+          const deleteCardBt = cardDiv.querySelector('.fa-trash-alt').closest('a');
+          deleteCardBt.addEventListener('click', oKamban.handleEvent.clickDeleteCardOnList(apiCardObj.id));
           cardContainer.appendChild(newCard);
         });
       }

@@ -22,6 +22,7 @@ const oKamban = {
     templateCard: document.getElementById('template_card'),
     containerList: document.querySelector('.card-lists')
   },
+  
   api: {
     base_url: 'http://localhost:3000',
     list: {
@@ -388,6 +389,8 @@ const oKamban = {
      * @return {CallableFunction} a callable function to Handle submit event on list Title Form
      */
     submitListTitleForm(listId) {
+
+      // TODO REVOIR la méthode pour bien séparer le handle de la modification des données (pti bisous)
       return async (event) => {
         var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
         const listElmt = document.querySelector(`div[list-id="${listId}"]`);

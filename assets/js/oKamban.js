@@ -76,6 +76,34 @@ const oKamban = {
           console.error(err);
         }
       },
+      /** 
+       * @method updateListToAPI Update a List to API
+       * @param {any} list A List Object for sending to API
+       */
+      async updateListToAPI(list) {
+        try {
+          const response = await fetch(`${oKamban.api.base_url}/list/${list.id}`, {
+            headers: {
+              'Authorization': 'Bearer token',
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            method: "UPDATE",
+            body: oKamban.api.asUrlFormEncoded(list)
+          });
+          const data = await response.json();
+          if (response.status == 200) {
+            return data;
+          } else if (data.error) {
+            console.log(data.error);
+            alert(data.error);
+            return null;
+          } else {
+            throw new Error('Unexpected server error occured');
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
     },
     card: {
       /** 
@@ -136,7 +164,7 @@ const oKamban = {
        */
       async deleteCardById(cardId) {
         try {
-          const response = await fetch(`${oKamban.api.base_url}/cardId`, {
+          const response = await fetch(`${oKamban.api.base_url}/card/${cardId}`, {
             headers: {
               'Authorization': 'Bearer token',
               'Content-Type': 'application/x-www-form-urlencoded'
@@ -241,7 +269,7 @@ const oKamban = {
      * @return {CallableFunction} a callable function to Handle click event on addCardModal Form and set listId on this form 
      */
     clickAddCardModal(listId) {
-      return (event) => {
+      return (_) => {
         const addCardModal = document.getElementById('addCardModal');
         addCardModal.querySelector('#formCardList_id').value = listId;
         oKamban.handleEvent.tools.toggleIsActiveHTMLElement(oKamban.elements.addCardModal);
@@ -265,7 +293,7 @@ const oKamban = {
      * @return {CallableFunction} a callable function to Handle double click event on list Title
      */
     dblClickOnListTitle(listId) {
-      return (event) => {
+      return (_) => {
         const listElmt = document.querySelector(`div[list-id="${listId}"]`);
         oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(listElmt.querySelector('h2'));
         oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(listElmt.querySelector('form'));
@@ -279,10 +307,16 @@ const oKamban = {
      * @return {CallableFunction} a callable function to Handle submit event on list Title Form
      */
     submitListTitleForm(listId) {
-      return (event) => {
+      return async (event) => {
+        var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
         const listElmt = document.querySelector(`div[list-id="${listId}"]`);
+        listElmt.querySelector('h2').textContent = formData.get("list-name");
         oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(listElmt.querySelector('form'));
-        // TODO UPDATE LIST IN DOM AND API
+        const list = oKamban.data.find((list) => {
+          return list.id == listId
+        });
+        list.name = formData.get("list-name");
+        await oKamban.api.list.updateListToAPI(list);
       }
     }
 
@@ -343,6 +377,15 @@ const oKamban = {
     async deleteCardFromList(card, cardId) {
       await oKamban.api.card.deleteCardById(cardId);
       card.remove();
+
+      // DELETE CARD IN TEMP IMAGE oKamban.data
+      oKamban.data.forEach((list) => {
+        for (const index = 0; index < list.cards.length; index++) {
+          if (list.cards[index].id == cardId) {
+            list.cards.splice(index, 1);
+          }
+        }
+      })
     },
 
     /**

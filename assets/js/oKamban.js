@@ -1,14 +1,21 @@
-// on objet qui contient des fonctions
-let listCount = 1;
-let cardCount = 1;
-const app = {
+/**
+ * @module oKamban oKambanlication module
+ * @version 1.0.0
+ * @author jkehl
+ */
+const oKamban = {
+  listCount: 1,
+  cardCount: 1,
   init: function () {
-    app.refreshListener();
+    oKamban.refreshListener();
   },
 
   elements: {
+    addListModalAddButton : document.getElementById('addListButton'),
     addListModal: document.getElementById('addListModal'),
+    addListModalForm : document.getElementById('modalListForm'),
     addCardModal: document.getElementById('addCardModal'),
+    addCardModalForm : document.getElementById('modalCardForm'),
   },
 
   handleEvent: {
@@ -37,7 +44,7 @@ const app = {
      */
     clickToggleHTMLElement(htmlElmt) {
       return (_) => {
-        app.handleEvent.tools.toggleHTMLElement(htmlElmt);
+        oKamban.handleEvent.tools.toggleHTMLElement(htmlElmt);
       };
     },
 
@@ -46,10 +53,10 @@ const app = {
      * @param {Event} event - Submit event on AddListModal Form
      */
     submitAddListForm(event) {
-      var formData = app.handleEvent.tools.getDataFormFrmFormSubmit(event);
-      app.domUpdates.makeListInDOM(formData);
-      app.handleEvent.tools.toggleHTMLElement(app.elements.addListModal);
-      app.refreshListener();
+      var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
+      oKamban.domUpdates.makeListInDOM(formData);
+      oKamban.handleEvent.tools.toggleHTMLElement(oKamban.elements.addListModal);
+      oKamban.refreshListener();
     },
 
     /**
@@ -57,10 +64,10 @@ const app = {
      * @param {Event} event - Submit event on AddListModal Form
      */
     submitAddCardForm(event) {
-      var formData = app.handleEvent.tools.getDataFormFrmFormSubmit(event);
-      app.domUpdates.makeCardInList(formData);
-      app.handleEvent.tools.toggleHTMLElement(app.elements.addCardModal);
-      app.refreshListener();
+      var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
+      oKamban.domUpdates.makeCardInList(formData);
+      oKamban.handleEvent.tools.toggleHTMLElement(oKamban.elements.addCardModal);
+      oKamban.refreshListener();
     },
 
     /**
@@ -71,7 +78,7 @@ const app = {
       const addCardModal = document.getElementById('addCardModal');
       const list_id = event.currentTarget.closest('div[list-id]').getAttribute('list-id');
       addCardModal.querySelector('#formCardList_id').value = list_id;
-      app.handleEvent.tools.toggleHTMLElement(app.elements.addCardModal);
+      oKamban.handleEvent.tools.toggleHTMLElement(oKamban.elements.addCardModal);
     }
   },
 
@@ -86,7 +93,7 @@ const app = {
         const list_container = document.querySelector(".card-lists");
 
         const newList = document.importNode(list_template.content, true);
-        newList.querySelector('div[list-id]').setAttribute('list-id', `List_${listCount++}`);
+        newList.querySelector('div[list-id]').setAttribute('list-id', `List_${oKamban.listCount++}`);
         newList.querySelector('h2').textContent = formData.get('formListName');
 
         list_container.appendChild(newList);
@@ -105,47 +112,47 @@ const app = {
 
         const newCard = document.importNode(card_template.content, true);
         newCard.querySelector('.columns').querySelectorAll(".column")[0].textContent = formData.get('formCardName');
-        newCard.querySelector('div[card-id]').setAttribute('card-id', `Card_${cardCount++}`);
+        newCard.querySelector('div[card-id]').setAttribute('card-id', `Card_${oKamban.cardCount++}`);
         card_container.appendChild(newCard);
       }
     },
   },
 
   /**
-   * Refresh All app listeners
+   * Refresh All oKamban listeners
    */
   refreshListener() {
     // Submit Event Listener on "AddListModal" Form
-    document.getElementById('modalListForm').removeEventListener('submit', app.handleEvent.submitAddListForm);
-    document.getElementById('modalListForm').addEventListener('submit', app.handleEvent.submitAddListForm);
+    oKamban.elements.addListModalForm.removeEventListener('submit', oKamban.handleEvent.submitAddListForm);
+    oKamban.elements.addListModalForm.addEventListener('submit', oKamban.handleEvent.submitAddListForm);
     // Click Event Listener on "add list" Button
-    document.getElementById('addListButton').removeEventListener('click', app.handleEvent.clickToggleHTMLElement(app.elements.addListModal));
-    document.getElementById('addListButton').addEventListener('click', app.handleEvent.clickToggleHTMLElement(app.elements.addListModal));
+    oKamban.elements.addListModalAddButton.removeEventListener('click', oKamban.handleEvent.clickToggleHTMLElement(oKamban.elements.addListModal));
+    oKamban.elements.addListModalAddButton.addEventListener('click', oKamban.handleEvent.clickToggleHTMLElement(oKamban.elements.addListModal));
     // Click Event Listener on all close Button for "AddListModal"
     let closeBts = document.getElementById('addListModal').querySelectorAll('.close');
     closeBts.forEach((buttonClose) => {
-      buttonClose.removeEventListener('click', app.handleEvent.clickToggleHTMLElement(app.elements.addListModal));
-      buttonClose.addEventListener('click', app.handleEvent.clickToggleHTMLElement(app.elements.addListModal));
+      buttonClose.removeEventListener('click', oKamban.handleEvent.clickToggleHTMLElement(oKamban.elements.addListModal));
+      buttonClose.addEventListener('click', oKamban.handleEvent.clickToggleHTMLElement(oKamban.elements.addListModal));
     });
 
 
     // Submit Event Listener on "AddCardModal" Form
-    document.getElementById('modalCardForm').removeEventListener('submit', app.handleEvent.submitAddCardForm);
-    document.getElementById('modalCardForm').addEventListener('submit', app.handleEvent.submitAddCardForm);
+    oKamban.elements.addCardModalForm.removeEventListener('submit', oKamban.handleEvent.submitAddCardForm);
+    oKamban.elements.addCardModalForm.addEventListener('submit', oKamban.handleEvent.submitAddCardForm);
     // Click Event Listener on all "add card" Button
     const addCardBts = document.querySelectorAll('.addCardBt');
     addCardBts.forEach((addCardBt) => {
-      addCardBt.removeEventListener('click', app.handleEvent.clickAddCardModal);
-      addCardBt.addEventListener('click', app.handleEvent.clickAddCardModal);
+      addCardBt.removeEventListener('click', oKamban.handleEvent.clickAddCardModal);
+      addCardBt.addEventListener('click', oKamban.handleEvent.clickAddCardModal);
     });
     // Click Event Listener on all close Button for "AddCardModal"
     closeBts = document.getElementById('addCardModal').querySelectorAll('.close');
     closeBts.forEach((buttonClose) => {
-      buttonClose.removeEventListener('click', app.handleEvent.clickToggleHTMLElement(app.elements.addCardModal));
-      buttonClose.addEventListener('click', app.handleEvent.clickToggleHTMLElement(app.elements.addCardModal));
+      buttonClose.removeEventListener('click', oKamban.handleEvent.clickToggleHTMLElement(oKamban.elements.addCardModal));
+      buttonClose.addEventListener('click', oKamban.handleEvent.clickToggleHTMLElement(oKamban.elements.addCardModal));
     });
   }
 };
 
-// on accroche un écouteur d'évènement sur le document : quand le chargement est terminé, on lance app.init
-document.addEventListener('DOMContentLoaded', app.init);
+// on accroche un écouteur d'évènement sur le document : quand le chargement est terminé, on lance oKamban.init
+document.addEventListener('DOMContentLoaded', oKamban.init);

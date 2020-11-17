@@ -6,6 +6,9 @@
 const oKamban = {
   listCount: 1,
   cardCount: 1,
+  /**
+   * @method init Initialize oKamban application 
+   */
   init: function () {
     oKamban.refreshListener();
   },
@@ -15,13 +18,16 @@ const oKamban = {
     addListModal: document.getElementById('addListModal'),
     addListModalForm: document.getElementById('modalListForm'),
     addCardModal: document.getElementById('addCardModal'),
-    addCardModalForm: document.getElementById('modalCardForm')
+    addCardModalForm: document.getElementById('modalCardForm'),
+    templateList: document.getElementById('template_list'),
+    templateCard: document.getElementById('template_card'),
+    containerList: document.querySelector('.card-lists')
   },
 
   handleEvent: {
     tools: {
       /**
-       * Toggle display HTML Element 
+       * @method toggleHTMLElement Toggle display HTML Element 
        * @param {HTMLElement} htmlElmt - HTML Element to toggle display 
        */
       toggleHTMLElement(htmlElmt) {
@@ -29,7 +35,7 @@ const oKamban = {
       },
 
       /**
-       * Get Data Form from Form submit event 
+       * @method getDataFormFrmFormSubmit Get Data Form from Form submit event 
        * @param {Event} event - Submit Form event
        * @returns {FormData} A FormData construct with event target Form Inputs
        */
@@ -40,7 +46,7 @@ const oKamban = {
     },
 
     /**
-     * Handle click on toggle display HTML Element button   
+     * @method clickToggleHTMLElement Handle click on toggle display HTML Element button   
      * @param {HTMLElement} htmlElmt - HTML Element to toggle display 
      * @returns {CallableFunction} a callable function to Handle click on toggle display HTML Element button 
      */
@@ -51,7 +57,7 @@ const oKamban = {
     },
 
     /**
-     * Handle Submit event on AddListModal Form
+     * @method submitAddListForm Handle Submit event on AddListModal Form
      * @param {Event} event - Submit event on AddListModal Form
      */
     submitAddListForm(event) {
@@ -62,7 +68,7 @@ const oKamban = {
     },
 
     /**
-     * Handle Submit event on AddCardModal Form
+     * @method submitAddCardForm Handle Submit event on AddCardModal Form
      * @param {Event} event - Submit event on AddListModal Form
      */
     submitAddCardForm(event) {
@@ -73,7 +79,7 @@ const oKamban = {
     },
 
     /**
-     * Handle click event on addCardModal Form and set  ListId on this form
+     * @method clickAddCardModal Handle click event on addCardModal Form and set  ListId on this form
      * @param {Event} event 
      */
     clickAddCardModal(event) {
@@ -85,34 +91,48 @@ const oKamban = {
   },
 
   domUpdates: {
-    /**
-     *  Make and Add a new Liste in body
-     * @param {FormData} formData form data from AddListModal Form
-     */
-    makeListInDOM(formData) {
-      if ("content" in document.createElement('template')) {
-        const list_template = document.querySelector('#template_list');
-        const list_container = document.querySelector('.card-lists');
+    tools: {
+      /**
+       * @method queryListElmtById Get a List HTML Element by listId
+       * @param {String} listId
+       * @returns {HTMLElement} List HTML Element with list-id attribut equal to listId param
+       */
+      queryListElmtById(listId) {
+        return document.querySelector(`div[list-id="${listId}"]`)
+      },
 
-        const newList = document.importNode(list_template.content, true);
-        newList.querySelector('div[list-id]').setAttribute('list-id', `List_${oKamban.listCount++}`);
-        newList.querySelector('h2').textContent = formData.get('formListName');
-
-        list_container.appendChild(newList);
+      /**
+       * @method queryCardElmtById Get a Card HTML Element by cardId
+       * @param {String} cardId
+       * @returns {HTMLElement} Card HTML Element with card-id attribut equal to cardId param
+       */
+      queryCardElmtById(cardId) {
+        return document.querySelector(`div[card-id="${cardId}"]`)
       }
     },
 
     /**
-     * Make and Add a new Card in a spécific List
+     * @method makeListInDOM  Make and Add a new Liste in body
+     * @param {FormData} formData form data from AddListModal Form
+     */
+    makeListInDOM(formData) {
+      if ("content" in document.createElement('template')) {
+        const newList = document.importNode(oKamban.elements.templateList.content, true);
+        newList.querySelector('div[list-id]').setAttribute('list-id', `List_${oKamban.listCount++}`);
+        newList.querySelector('h2').textContent = formData.get('formListName');
+        oKamban.elements.containerList.appendChild(newList);
+      }
+    },
+
+    /**
+     * @method makeCardInList Make and Add a new Card in a spécific List
      * @param {FormData} formData form data from AddListModal Form
      */
     makeCardInList(formData) {
       if ("content" in document.createElement('template')) {
-        const card_template = document.querySelector('#template_card');
-        const target_list = document.querySelector(`div[list-id="${formData.get('formCardList_id')}"]`);
+        const target_list = oKamban.domUpdates.tools.queryListElmtById(formData.get('formCardList_id'));
         const card_container = target_list.querySelector('.panel-block');
-
-        const newCard = document.importNode(card_template.content, true);
+        const newCard = document.importNode(oKamban.elements.templateCard.content, true);
         newCard.querySelector('.columns').querySelectorAll('.column')[0].textContent = formData.get('formCardName');
         newCard.querySelector('div[card-id]').setAttribute('card-id', `Card_${oKamban.cardCount++}`);
         card_container.appendChild(newCard);
@@ -121,7 +141,7 @@ const oKamban = {
   },
 
   /**
-   * Refresh All oKamban listeners
+   * @method refreshListener Refresh All oKamban listeners
    */
   refreshListener() {
     // Submit Event Listener on "AddListModal" Form

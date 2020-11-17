@@ -178,11 +178,19 @@ const oKamban = {
   handleEvent: {
     tools: {
       /**
-       * @method toggleHTMLElement Toggle display HTML Element 
+       * @method toggleIsActiveHTMLElement Toggle display HTML Element with is-active css class
        * @param {HTMLElement} htmlElmt - HTML Element to toggle display 
        */
-      toggleHTMLElement(htmlElmt) {
+      toggleIsActiveHTMLElement(htmlElmt) {
         htmlElmt.classList.toggle('is-active');
+      },
+
+      /**
+       * @method toggleIsHiddenHTMLElement Toggle display HTML Element with is-hidden css class 
+       * @param {HTMLElement} htmlElmt - HTML Element to toggle display 
+       */
+      toggleIsHiddenHTMLElement(htmlElmt) {
+        htmlElmt.classList.toggle('is-hidden');
       },
 
       /**
@@ -197,13 +205,13 @@ const oKamban = {
     },
 
     /**
-     * @method clickToggleHTMLElement Handle click on toggle display HTML Element button   
+     * @method clickToggleIsActiveHTMLElement Handle click on toggle display HTML Element button   
      * @param {HTMLElement} htmlElmt - HTML Element to toggle display 
      * @returns {CallableFunction} a callable function to Handle click on toggle display HTML Element button 
      */
-    clickToggleHTMLElement(htmlElmt) {
+    clickToggleIsActiveHTMLElement(htmlElmt) {
       return (_) => {
-        oKamban.handleEvent.tools.toggleHTMLElement(htmlElmt);
+        oKamban.handleEvent.tools.toggleIsActiveHTMLElement(htmlElmt);
       };
     },
 
@@ -214,7 +222,7 @@ const oKamban = {
     submitAddListForm(event) {
       var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
       oKamban.domUpdates.makeListInDOM(formData);
-      oKamban.handleEvent.tools.toggleHTMLElement(oKamban.elements.addListModal);
+      oKamban.handleEvent.tools.toggleIsActiveHTMLElement(oKamban.elements.addListModal);
     },
 
     /**
@@ -224,7 +232,7 @@ const oKamban = {
     submitAddCardForm(event) {
       var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
       oKamban.domUpdates.makeCardInList(formData);
-      oKamban.handleEvent.tools.toggleHTMLElement(oKamban.elements.addCardModal);
+      oKamban.handleEvent.tools.toggleIsActiveHTMLElement(oKamban.elements.addCardModal);
     },
 
     /**
@@ -236,7 +244,7 @@ const oKamban = {
       return (event) => {
         const addCardModal = document.getElementById('addCardModal');
         addCardModal.querySelector('#formCardList_id').value = listId;
-        oKamban.handleEvent.tools.toggleHTMLElement(oKamban.elements.addCardModal);
+        oKamban.handleEvent.tools.toggleIsActiveHTMLElement(oKamban.elements.addCardModal);
       }
     },
 
@@ -247,11 +255,36 @@ const oKamban = {
      */
     clickDeleteCardOnList(cardId) {
       return (event) => {
-        console.log('DELETE CARD ', cardId);
         oKamban.domUpdates.deleteCardFromList(event.target.closest('div[card-id]'), cardId);
       }
-    }
+    },
 
+    /**
+     * @method dblClickOnListTitle Handle double click event on list Title
+     * @param {String} listId - target List listId
+     * @return {CallableFunction} a callable function to Handle double click event on list Title
+     */
+    dblClickOnListTitle(listId) {
+      return (event) => {
+        const listElmt = document.querySelector(`div[list-id="${listId}"]`);
+        oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(listElmt.querySelector('h2'));
+        oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(listElmt.querySelector('form'));
+      }
+    },
+
+
+    /**
+     * @method submitListTitleForm Handle submit event on list Title Form
+     * @param {String} listId - target List listId
+     * @return {CallableFunction} a callable function to Handle submit event on list Title Form
+     */
+    submitListTitleForm(listId) {
+      return (event) => {
+        const listElmt = document.querySelector(`div[list-id="${listId}"]`);
+        oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(listElmt.querySelector('form'));
+        // TODO UPDATE LIST IN DOM AND API
+      }
+    }
 
   },
 
@@ -289,9 +322,12 @@ const oKamban = {
         oKamban.data.push(listTmp);
         if ("content" in document.createElement('template')) {
           const newList = document.importNode(oKamban.elements.templateList.content, true);
-          // const listId = `List_${oKamban.listCount++}`;
           newList.querySelector('div[list-id]').setAttribute('list-id', listTmp.id);
-          newList.querySelector('h2').textContent = formData.get('formListName');
+
+          const listTitleElmt = newList.querySelector('h2');
+          listTitleElmt.textContent = formData.get('formListName');
+          listTitleElmt.addEventListener('dblclick', oKamban.handleEvent.dblClickOnListTitle(apiListObj.id));
+
           const addCardBt = newList.querySelector('.fa-plus');
           addCardBt.addEventListener('click', oKamban.handleEvent.clickAddCardModal(listTmp.id));
           oKamban.elements.containerList.appendChild(newList);
@@ -351,13 +387,19 @@ const oKamban = {
         }).forEach((apiListObj) => {
           const newList = document.importNode(oKamban.elements.templateList.content, true);
           newList.querySelector('div[list-id]').setAttribute('list-id', apiListObj.id);
-          newList.querySelector('h2').textContent = apiListObj.name;
+
+          const listTitleElmt = newList.querySelector('h2');
+          listTitleElmt.textContent = apiListObj.name;
+          listTitleElmt.addEventListener('dblclick', oKamban.handleEvent.dblClickOnListTitle(apiListObj.id));
+
+          const listTitleFormElmt = newList.querySelector('form');
+          listTitleFormElmt.addEventListener('submit', oKamban.handleEvent.submitListTitleForm(apiListObj.id));
+
           const addCardBt = newList.querySelector('.addCardBt');
           addCardBt.addEventListener('click', oKamban.handleEvent.clickAddCardModal(apiListObj.id));
           const cardContainer = newList.querySelector('.panel-block');
           oKamban.domUpdates.makeCardFromApiToList(apiListObj.cards, cardContainer);
           oKamban.elements.containerList.appendChild(newList);
-
         });
       }
     },
@@ -392,11 +434,11 @@ const oKamban = {
     // Submit Event Listener on "AddListModal" Form
     oKamban.elements.addListModalForm.addEventListener('submit', oKamban.handleEvent.submitAddListForm);
     // Click Event Listener on "add list" Button
-    oKamban.elements.addListModalAddButton.addEventListener('click', oKamban.handleEvent.clickToggleHTMLElement(oKamban.elements.addListModal));
+    oKamban.elements.addListModalAddButton.addEventListener('click', oKamban.handleEvent.clickToggleIsActiveHTMLElement(oKamban.elements.addListModal));
     // Click Event Listener on all close Button for "AddListModal"
     let closeBts = document.getElementById('addListModal').querySelectorAll('.close');
     closeBts.forEach((buttonClose) => {
-      buttonClose.addEventListener('click', oKamban.handleEvent.clickToggleHTMLElement(oKamban.elements.addListModal));
+      buttonClose.addEventListener('click', oKamban.handleEvent.clickToggleIsActiveHTMLElement(oKamban.elements.addListModal));
     });
 
 
@@ -405,7 +447,7 @@ const oKamban = {
     // Click Event Listener on all close Button for "AddCardModal"
     closeBts = document.getElementById('addCardModal').querySelectorAll('.close');
     closeBts.forEach((buttonClose) => {
-      buttonClose.addEventListener('click', oKamban.handleEvent.clickToggleHTMLElement(oKamban.elements.addCardModal));
+      buttonClose.addEventListener('click', oKamban.handleEvent.clickToggleIsActiveHTMLElement(oKamban.elements.addCardModal));
     });
   },
 

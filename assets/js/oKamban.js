@@ -53,20 +53,13 @@ const oKamban = {
        */
       async postNewListToAPI(newList) {
         try {
-          let formBody = [];
-          for (let property in newList) {
-            let encodedKey = encodeURIComponent(property);
-            let encodedValue = encodeURIComponent(newList[property]);
-            formBody.push(encodedKey + "=" + encodedValue);
-          }
-          formBody = formBody.join("&");
           const response = await fetch(`${oKamban.api.base_url}/list`, {
             headers: {
               'Authorization': 'Bearer token',
               'Content-Type': 'application/x-www-form-urlencoded'
             },
             method: "POST",
-            body: formBody
+            body: oKamban.api.asUrlFormEncoded(newList)
           });
           if (response.status == 200) {
             return await response.json();
@@ -111,20 +104,13 @@ const oKamban = {
        */
       async postNewCardToAPI(newCard) {
         try {
-          let formBody = [];
-          for (let property in newCard) {
-            let encodedKey = encodeURIComponent(property);
-            let encodedValue = encodeURIComponent(newCard[property]);
-            formBody.push(encodedKey + "=" + encodedValue);
-          }
-          formBody = formBody.join("&");
           const response = await fetch(`${oKamban.api.base_url}/card`, {
             headers: {
               'Authorization': 'Bearer token',
               'Content-Type': 'application/x-www-form-urlencoded'
             },
             method: "POST",
-            body: formBody
+            body: oKamban.api.asUrlFormEncoded(newCard)
           });
           const data = await response.json();
           if (response.status == 200) {
@@ -139,7 +125,22 @@ const oKamban = {
         } catch (err) {
           console.error(err);
         }
-      },
+      }
+    },
+
+    /** 
+     * @method asUrlFormEncoded Transform object to URL FORM ENCODED FORMAT
+     * @param {all} obj An object to transform to URL FORM ENCODED FORMAT
+     * @returns {String} String represent object data as URL FORM ENCODED
+     */
+    asUrlFormEncoded(obj) {
+      let formBody = [];
+      for (let property in obj) {
+        let encodedKey = encodeURIComponent(property);
+        let encodedValue = encodeURIComponent(obj[property]);
+        formBody.push(encodedKey + "=" + encodedValue);
+      }
+      return formBody.join("&");
     }
   },
   handleEvent: {

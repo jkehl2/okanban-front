@@ -4,8 +4,6 @@
  * @author jkehl
  */
 const oKamban = {
-  listCount: 1,
-  cardCount: 1,
   /**
    * @method init Initialize oKamban application 
    */
@@ -36,8 +34,12 @@ const oKamban = {
           const response = await fetch(`${oKamban.api.base_url}/list`);
           if (response.status == 200) {
             return await response.json();
+          } else if (data.error) {
+            console.log(data.error);
+            alert(data.error);
+            return null;
           } else {
-            throw new Error('Invalide server response');
+            throw new Error('Unexpected server error occured');
           }
         } catch (err) {
           console.error(err);
@@ -68,8 +70,12 @@ const oKamban = {
           });
           if (response.status == 200) {
             return await response.json();
+          } else if (data.error) {
+            console.log(data.error);
+            alert(data.error);
+            return null;
           } else {
-            throw new Error('Invalide server response');
+            throw new Error('Unexpected server error occured');
           }
         } catch (err) {
           console.error(err);
@@ -86,8 +92,12 @@ const oKamban = {
           const response = await fetch(`${oKamban.api.base_url}/card`);
           if (response.status == 200) {
             return await response.json();
+          } else if (data.error) {
+            console.log(data.error);
+            alert(data.error);
+            return null;
           } else {
-            throw new Error('Invalide server response');
+            throw new Error('Unexpected server error occured');
           }
         } catch (err) {
           console.error(err);
@@ -116,10 +126,15 @@ const oKamban = {
             method: "POST",
             body: formBody
           });
+          const data = await response.json();
           if (response.status == 200) {
             return await response.json();
+          } else if (data.error) {
+            console.log(data.error);
+            alert(data.error);
+            return null;
           } else {
-            throw new Error('Invalide server response');
+            throw new Error('Unexpected server error occured');
           }
         } catch (err) {
           console.error(err);
@@ -219,17 +234,21 @@ const oKamban = {
      * @param {FormData} formData form data from AddListModal Form
      */
     async makeListInDOM(formData) {
-      const listTemp = await oKamban.api.list.postNewListToAPI({
-        name: formData.get('formListName')
+      const listTmp = await oKamban.api.list.postNewListToAPI({
+        name: formData.get('formListName'),
+        position: oKamban.data.length
       });
-      if ("content" in document.createElement('template')) {
-        const newList = document.importNode(oKamban.elements.templateList.content, true);
-        // const listId = `List_${oKamban.listCount++}`;
-        newList.querySelector('div[list-id]').setAttribute('list-id', listTemp.id);
-        newList.querySelector('h2').textContent = formData.get('formListName');
-        const addCardBt = newList.querySelector('.addCardBt');
-        addCardBt.addEventListener('click', oKamban.handleEvent.clickAddCardModal(listTemp.id));
-        oKamban.elements.containerList.appendChild(newList);
+      if (listTmp) {
+        oKamban.data.push(listTmp);
+        if ("content" in document.createElement('template')) {
+          const newList = document.importNode(oKamban.elements.templateList.content, true);
+          // const listId = `List_${oKamban.listCount++}`;
+          newList.querySelector('div[list-id]').setAttribute('list-id', listTmp.id);
+          newList.querySelector('h2').textContent = formData.get('formListName');
+          const addCardBt = newList.querySelector('.addCardBt');
+          addCardBt.addEventListener('click', oKamban.handleEvent.clickAddCardModal(listTmp.id));
+          oKamban.elements.containerList.appendChild(newList);
+        }
       }
     },
 
@@ -238,18 +257,26 @@ const oKamban = {
      * @param {FormData} formData form data from AddListModal Form
      */
     async makeCardInList(formData) {
-      const cardTemp = await oKamban.api.card.postNewCardToAPI({
-        title: formData.get('formCardName'),
-        list_id: formData.get('formCardList_id')
+      const listTmp = oKamban.data.find((list) => {
+        return list.id == formData.get('formCardList_id')
       });
-      if ("content" in document.createElement('template')) {
-        const target_list = oKamban.domUpdates.tools.queryListElmtById(formData.get('formCardList_id'));
-        const card_container = target_list.querySelector('.panel-block');
-        const newCard = document.importNode(oKamban.elements.templateCard.content, true);
-        newCard.querySelector('.columns').querySelectorAll('.column')[0].textContent = formData.get('formCardName');
-        newCard.querySelector('div[card-id]').setAttribute('card-id', cardTemp.id);
-        card_container.appendChild(newCard);
+      const cardTmp = await oKamban.api.card.postNewCardToAPI({
+        title: formData.get('formCardName'),
+        position: listTmp.cards.length,
+        list_id: listTmp.id
+      });
+      if (cardTmp) {
+        listTmp.cards.push(cardTmp);
+        if ("content" in document.createElement('template')) {
+          const target_list = oKamban.domUpdates.tools.queryListElmtById(formData.get('formCardList_id'));
+          const card_container = target_list.querySelector('.panel-block');
+          const newCard = document.importNode(oKamban.elements.templateCard.content, true);
+          newCard.querySelector('.columns').querySelectorAll('.column')[0].textContent = formData.get('formCardName');
+          newCard.querySelector('div[card-id]').setAttribute('card-id', cardTmp.id);
+          card_container.appendChild(newCard);
+        }
       }
+
     },
 
     /**
@@ -322,7 +349,10 @@ const oKamban = {
    * @method refreshOkamban Refresh All oKamban lists and cards from API
    */
   async refreshOkamban() {
-    oKamban.domUpdates.makeListWithCardsFromApi(await oKamban.api.list.getListsFromAPI());
+    oKamban.data = await oKamban.api.list.getListsFromAPI();
+    if (oKamban.data) {
+      oKamban.domUpdates.makeListWithCardsFromApi(oKamban.data);
+    }
   }
 };
 

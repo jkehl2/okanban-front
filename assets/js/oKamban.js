@@ -87,7 +87,7 @@ const oKamban = {
               'Authorization': 'Bearer token',
               'Content-Type': 'application/x-www-form-urlencoded'
             },
-            method: "UPDATE",
+            method: "PATCH",
             body: oKamban.api.asUrlFormEncoded(list)
           });
           const data = await response.json();
@@ -295,11 +295,15 @@ const oKamban = {
     dblClickOnListTitle(listId) {
       return (_) => {
         const listElmt = document.querySelector(`div[list-id="${listId}"]`);
-        oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(listElmt.querySelector('h2'));
-        oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(listElmt.querySelector('form'));
+
+        const listTitleElmt = listElmt.querySelector('h2');
+        oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(listTitleElmt);
+
+        const listTitleFormElmt = listElmt.querySelector('form');
+        listTitleFormElmt.querySelector('input[type="text"]').value = listTitleElmt.textContent;
+        oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(listTitleFormElmt);
       }
     },
-
 
     /**
      * @method submitListTitleForm Handle submit event on list Title Form
@@ -310,13 +314,18 @@ const oKamban = {
       return async (event) => {
         var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
         const listElmt = document.querySelector(`div[list-id="${listId}"]`);
-        listElmt.querySelector('h2').textContent = formData.get("list-name");
+        const listTitleElmt = listElmt.querySelector('h2');
+        if (listTitleElmt.textContent != formData.get("list-name")) {
+          const list = oKamban.data.find((list) => {
+            return list.id == listId
+          });
+          list.name = formData.get("list-name");
+          listTitleElmt.textContent = list.name;
+          await oKamban.api.list.updateListToAPI(list);
+        }
+
         oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(listElmt.querySelector('form'));
-        const list = oKamban.data.find((list) => {
-          return list.id == listId
-        });
-        list.name = formData.get("list-name");
-        await oKamban.api.list.updateListToAPI(list);
+        oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(listElmt.querySelector('h2'));
       }
     }
 

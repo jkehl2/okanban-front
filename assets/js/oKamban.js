@@ -65,7 +65,7 @@ const oKamban = {
        * @returns {Promise} A Card Object from API with id
        */
       async postNewCardToAPI(newCard) {
-        return oKamban.api.sendRequest(`${oKamban.api.base_url}/card`, "PUT", newCard);
+        return oKamban.api.sendRequest(`${oKamban.api.base_url}/card`, "POST", newCard);
       },
 
       /** 
@@ -80,7 +80,7 @@ const oKamban = {
        * @param {any} card A card Object for sending to API
        */
       async updateCardToAPI(card) {
-        return oKamban.api.sendRequest(`${oKamban.api.base_url}/card/${cardId}`, "PATCH", card);
+        return oKamban.api.sendRequest(`${oKamban.api.base_url}/card/${card.id}`, "PATCH", card);
       }
     },
 

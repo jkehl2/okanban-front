@@ -104,11 +104,11 @@ const joKanban = {
       },
 
       /** 
-       * @method postcardFragmentToAPI Post a new Card to API
+       * @method postCardToAPI Post a new Card to API
        * @param {any} cardFragment A new Card Object for sending to API
        * @returns {Promise} A Card Object from API with id
        */
-      async postcardFragmentToAPI(cardFragment) {
+      async postCardToAPI(cardFragment) {
         return joKanban.api.sendRequest(`${joKanban.api.base_url}/card`, "POST", cardFragment);
       },
 
@@ -126,6 +126,41 @@ const joKanban = {
        */
       async updateCardToAPI(card) {
         return joKanban.api.sendRequest(`${joKanban.api.base_url}/card/${card.id}`, "PATCH", card);
+      }
+    },
+
+    tag: {
+      /** 
+       * @method getTagsFromAPI Get all Tags from API
+       * @returns {Promise} Array of Tag Object from API
+       */
+      async getTagsFromAPI() {
+        return joKanban.api.sendRequest(`${joKanban.api.base_url}/tag`, "GET", null);
+      },
+
+      /** 
+       * @method postTagToAPI Post a new Tag to API
+       * @param {any} tag A new Tag Object for sending to API
+       * @returns {Promise} A Tag Object from API with id
+       */
+      async postTagToAPI(tag) {
+        return joKanban.api.sendRequest(`${joKanban.api.base_url}/tag`, "POST", cardFragment);
+      },
+
+      /** 
+       * @method deleteTagById Delete a Tag by ID
+       * @param {String} tagId Target Tag tagId to delete
+       */
+      async deleteTagById(tagId) {
+        return joKanban.api.sendRequest(`${joKanban.api.base_url}/tag/${cardId}`, "DELETE", null);
+      },
+
+      /** 
+       * @method updateTagToAPI Update a Tag to API
+       * @param {any} tag A Tag Object for sending to API
+       */
+      async updateTagToAPI(tag) {
+        return joKanban.api.sendRequest(`${joKanban.api.base_url}/tag/${card.id}`, "PATCH", card);
       }
     },
 
@@ -457,7 +492,7 @@ const joKanban = {
           color: formData.get('color'),
           list_id: formData.get('list_id')
         }
-        newCard = await joKanban.api.card.postcardFragmentToAPI(newCard);
+        newCard = await joKanban.api.card.postCardToAPI(newCard);
         if (newCard) {
           parentList.cards.push(newCard);
           joKanban.domUpdates.makeCardInDom(parentList, newCard);

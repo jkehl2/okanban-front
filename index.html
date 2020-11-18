@@ -18,12 +18,13 @@
                 JoKanban
             </h1>
             <div class="columns">
-                <div class="column is-narrow">
+                <div class="column is-narrow is-one-fifth">
                     <aside class="menu ">
                         <p class="menu-label"> General </p>
                         <ul class="menu-list">
                             <li>
-                                <button class="button is-primary is-rounded" style="width:100%;justify-content: left;" id="addListButton">
+                                <button class="button is-primary is-rounded" style="width:100%;justify-content: left;"
+                                    id="addListButton">
                                     <span class="icon is-small">
                                         <i class="fas fa-plus"></i>
                                     </span>
@@ -31,7 +32,8 @@
                                 </button>
                             </li>
                             <li>
-                                <button class="button is-link is-rounded" style="width:100%;justify-content: left;" id="addTagButton">
+                                <button class="button is-link is-rounded" style="width:100%;justify-content: left;"
+                                    id="addTagButton">
                                     <span class="icon is-small">
                                         <i class="fas fa-plus"></i>
                                     </span>
@@ -41,7 +43,13 @@
                         </ul>
                         <p class="menu-label"> Tags </p>
                         <ul class="menu-list">
-
+                        <li>
+                            <div class="buttons">
+                                <button class="button is-rounded is-small">urgent</button>
+                                <button class="button is-rounded is-small">si possible</button>
+                                <button class="button is-rounded is-small">jamais</button>
+                            </div>
+                        </li>
                         </ul>
                     </aside>
                 </div>
@@ -64,8 +72,36 @@
                     <div class="field">
                         <label class="label" for="name">Nom</label>
                         <div class="control">
-                            <input id="name" type="text" class="input" name="name" value=""
-                                placeholder="Nom de la liste">
+                            <input type="text" class="input" name="name" value="" placeholder="Nom de la liste">
+                        </div>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success">Save changes</button>
+                    <button class="button close" type="button">Cancel</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="addTagModal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <form id="modalTagForm" action="" method="POST">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Ajouter un tag</p>
+                    <button class="delete close" type="button" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="field">
+                        <label class="label" for="title">Nom</label>
+                        <div class="control">
+                            <input id="title" type="text" class="input" name="name" value=""
+                                placeholder="Titre de la carte">
+                        </div>
+                        <label class="label" for="title">Couleur</label>
+                        <div class="control">
+                            <input type="color" class="input is-small" name="color" value="#ffffff">
                         </div>
                     </div>
                 </section>
@@ -92,7 +128,10 @@
                             <input id="title" type="text" class="input" name="title" value=""
                                 placeholder="Titre de la carte">
                         </div>
-                        <input type="color" class="input is-small" name="color" value="#ff0000">
+                        <label class="label" for="title">Couleur</label>
+                        <div class="control">
+                            <input type="color" class="input is-small" name="color" value="#ffffff">
+                        </div>
                         <input type="hidden" name="position" value="">
                         <input type="hidden" name="list_id" value="">
                     </div>
@@ -145,7 +184,9 @@
             <div class="panel-block is-block has-background-light"></div>
         </div>
     </template>
-
+    <template id="template_tag">
+        <button class="button is-rounded is-small"></button>
+    </template>
     <template id="template_card">
         <div class="box" card-id="I">
             <div class="columns">

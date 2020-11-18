@@ -22,7 +22,7 @@ const oKamban = {
     templateCard: document.getElementById('template_card'),
     containerList: document.querySelector('.card-lists')
   },
-  
+
   api: {
     base_url: 'http://localhost:3000',
     list: {
@@ -173,7 +173,6 @@ const oKamban = {
             method: "DELETE"
           });
           const data = await response.json();
-          console.log(data);
           if (response.status == 200) {
             return data;
           } else if (data.error) {
@@ -389,7 +388,6 @@ const oKamban = {
      * @return {CallableFunction} a callable function to Handle submit event on list Title Form
      */
     submitListTitleForm(listId) {
-
       // TODO REVOIR la méthode pour bien séparer le handle de la modification des données (pti bisous)
       return async (event) => {
         var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
@@ -400,9 +398,10 @@ const oKamban = {
             return list.id == listId
           });
           list.name = formData.get("list-name");
-          listTitleElmt.textContent = list.name;
-          await oKamban.api.list.updateListToAPI(list);
+          oKamban.domUpdates.updateList(listId);
         }
+
+
 
         oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(listElmt.querySelector('form'));
         oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(listElmt.querySelector('h2'));
@@ -465,20 +464,18 @@ const oKamban = {
      * @param {String} listId Target List which come from card to delete
      */
     async deleteCardFromList(card, cardId, listId) {
-      await oKamban.api.card.deleteCardById(cardId);
-      // TODO NE RIEN DELTE SI LA REQUETE VERS L'API ne se passe pas bien
+      const response = await oKamban.api.card.deleteCardById(cardId);
+      if (response) {
+        const list = oKamban.data.find((list) => {
+          return list.id == listId;
+        });
 
-      card.remove();
-
-      // DELETE CARD IN TEMP IMAGE oKamban.data
-      const list = oKamban.data.find((list) => {
-        return list.id == listId;
-      });
-
-      for (const index = 0; index < list.cards.length; index++) {
-        if (list.cards[index].id == cardId) {
-          list.cards.splice(index, 1);
+        for (let index = 0; index < list.cards.length; index++) {
+          if (list.cards[index].id == cardId) {
+            list.cards.splice(index, 1);
+          }
         }
+        card.remove();
       }
 
     },
@@ -497,12 +494,36 @@ const oKamban = {
         return card.id == cardId;
       });
 
-      await oKamban.api.card.updateCardToAPI(card);
+      const response = await oKamban.api.card.updateCardToAPI(card);
+      if (response) {
+        cardElmt.querySelector('.columns').querySelectorAll('.column')[0].textContent = card.title;
+        cardElmt.style.background = card.color;
+      } else {
+        card.title = cardElmt.querySelector('.columns').querySelectorAll('.column')[0].textContent;
+        card.color = cardElmt.style.background;
+        alert('Impossible de mettre à jour la carte');
+      }
+    },
 
-      cardElmt.querySelector('.columns').querySelectorAll('.column')[0].textContent = card.title;
-      cardElmt.style.background = card.color;
+    /**
+     * @method updateList Update a list.
+     * @param {String} listId Target List which come from card to delete
+     */
+    async updateList(listId) {
+      const listElmt = document.querySelector(`div[list-id="${listId}"]`);
 
-      // TODO MANAGE POSITION CARD HERE AFTER UPDATE :P
+      const listTitleElmt = listElmt.querySelector('h2');
+      const list = oKamban.data.find((list) => {
+        return list.id == listId
+      });
+
+      const response = await oKamban.api.list.updateListToAPI(list);
+      if (response) {
+        listTitleElmt.textContent = list.name;
+      } else {
+        list.name = listTitleElmt.textContent;
+        alert('Impossible de mettre à jour la liste');
+      }
     },
 
     /**

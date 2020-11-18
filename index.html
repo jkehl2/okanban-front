@@ -18,16 +18,35 @@
                 JoKanban
             </h1>
             <div class="columns">
-                <div class="column is-full">
-                    <div class="card-lists columns"></div>
+                <div class="column is-narrow">
+                    <aside class="menu ">
+                        <p class="menu-label"> General </p>
+                        <ul class="menu-list">
+                            <li>
+                                <button class="button is-primary is-rounded" style="width:100%;justify-content: left;" id="addListButton">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-plus"></i>
+                                    </span>
+                                    &nbsp; Ajouter une liste
+                                </button>
+                            </li>
+                            <li>
+                                <button class="button is-link is-rounded" style="width:100%;justify-content: left;" id="addTagButton">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-plus"></i>
+                                    </span>
+                                    &nbsp; Ajouter un tag
+                                </button>
+                            </li>
+                        </ul>
+                        <p class="menu-label"> Tags </p>
+                        <ul class="menu-list">
+
+                        </ul>
+                    </aside>
                 </div>
                 <div class="column">
-                    <button class="button is-success" id="addListButton">
-                        <span class="icon is-small">
-                            <i class="fas fa-plus"></i>
-                        </span>
-                        &nbsp; Ajouter une liste
-                    </button>
+                    <div class="card-lists columns"></div>
                 </div>
             </div>
         </div>
@@ -109,13 +128,13 @@
                     </div>
 
                     <div class="column is-narrow">
-                        <a href="#" >
+                        <a href="#">
                             <span class="icon is-small has-text-white">
                                 <i class="fas fa-plus"></i>
                             </span>
                         </a>
 
-                        <a href="#" >
+                        <a href="#">
                             <span class="icon is-small has-text-danger">
                                 <i class="fas fa-trash-alt"></i>
                             </span>

@@ -8,7 +8,7 @@ const joKanban = {
    * @method init Initialize joKanban application 
    */
   init() {
-    joKanban.initListener();
+    joKanban.initModalsListener();
     joKanban.refreshjOkanban();
   },
 
@@ -650,9 +650,9 @@ const joKanban = {
   },
 
   /**
-   * @method initListener Refresh All joKanban listeners
+   * @method initModalsListener Refresh joKanban listeners on modals
    */
-  initListener() {
+  initModalsListener() {
     // Submit Event Listener on "AddListModal" Form
     joKanban.elements.addListModalForm.addEventListener('submit', joKanban.handleEvent.submitAddListForm);
     // Click Event Listener on "add list" Button

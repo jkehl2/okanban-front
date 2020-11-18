@@ -47,6 +47,17 @@ const joKanban = {
     return [list, card];
   },
 
+  /**
+   * @method getDataTagById Get Tag Object from joKanban TAGS
+   * @param {String} tagId Target Tag tagId 
+   * @returns {all} Tag target object
+   */
+  getDataTagById(tagId) {
+    return joKanban.tags.find((tag) => {
+      return tag.id == tagId;
+    });
+  },
+
   elements: {
     addListModalAddButton: document.getElementById('addListButton'),
     addListModal: document.getElementById('addListModal'),
@@ -57,7 +68,10 @@ const joKanban = {
     templateCard: document.getElementById('template_card'),
     containerList: document.querySelector('.card-lists'),
     templateTag: document.getElementById('template_tag'),
-    containerTag: document.getElementById('tags-menu')
+    containerTagMenu: document.getElementById('tags-menu'),
+    addTagModalAddButton: document.getElementById('addTagButton'),
+    addTagModalForm: document.getElementById('modalTagForm'),
+    addTagModal: document.getElementById('addTagModal')
   },
 
   api: {
@@ -146,7 +160,7 @@ const joKanban = {
        * @returns {Promise} A Tag Object from API with id
        */
       async postTagToAPI(tag) {
-        return joKanban.api.sendRequest(`${joKanban.api.base_url}/tag`, "POST", cardFragment);
+        return joKanban.api.sendRequest(`${joKanban.api.base_url}/tag`, "POST", tag);
       },
 
       /** 
@@ -154,7 +168,7 @@ const joKanban = {
        * @param {String} tagId Target Tag tagId to delete
        */
       async deleteTagById(tagId) {
-        return joKanban.api.sendRequest(`${joKanban.api.base_url}/tag/${cardId}`, "DELETE", null);
+        return joKanban.api.sendRequest(`${joKanban.api.base_url}/tag/${tagId}`, "DELETE", null);
       },
 
       /** 
@@ -162,7 +176,7 @@ const joKanban = {
        * @param {any} tag A Tag Object for sending to API
        */
       async updateTagToAPI(tag) {
-        return joKanban.api.sendRequest(`${joKanban.api.base_url}/tag/${card.id}`, "PATCH", card);
+        return joKanban.api.sendRequest(`${joKanban.api.base_url}/tag/${tag.id}`, "PATCH", tag);
       }
     },
 
@@ -277,6 +291,75 @@ const joKanban = {
     },
 
     /**
+     * @method clickAddTagBt Handle Click event on Add Tag Button
+     * @param {Event} event - Click event on Add Tag Button
+     */
+    clickAddTagBt() {
+      return (_) => {
+        joKanban.elements.addTagModalForm.querySelector('input[type="text"][name="name"]').value = '';
+        joKanban.elements.addTagModalForm.querySelector('input[type="color"][name="color"]').value = '#ffffff';
+        // Submit Event Listener on "AddListModal" Form
+        joKanban.elements.addTagModalForm.removeEventListener('submit', joKanban.handleEvent.submitAddTagForm);
+        joKanban.elements.addTagModalForm.removeEventListener('submit', joKanban.handleEvent.submitEditTagForm);
+        joKanban.elements.addTagModalForm.addEventListener('submit', joKanban.handleEvent.submitAddTagForm);
+        joKanban.handleEvent.tools.toggleIsActiveHTMLElement(joKanban.elements.addTagModal);
+      }
+    },
+
+    /**
+     * @method submitAddTagForm Handle Submit event on AddTagModal Form
+     * @param {Event} event - Submit event on AddTagModal Form
+     */
+    submitAddTagForm(event) {
+      var formData = joKanban.handleEvent.tools.getDataFormFrmFormSubmit(event);
+      joKanban.domUpdates.fromUserAction.createTag(formData);
+      joKanban.handleEvent.tools.toggleIsActiveHTMLElement(joKanban.elements.addTagModal);
+    },
+
+    /**
+     * @method clickEditTagBt Handle Click event on Edit Tag Button
+     * @param {String} tagId - Target Tag tagId
+     * @return {CallableFunction} a callable function to Handle Click event on Edit Tag Button
+     */
+    clickEditTagBt(tagId) {
+      return (_) => {
+        const tag = joKanban.getDataTagById(tagId);
+        joKanban.elements.addTagModalForm.querySelector('input[type="text"][name="name"]').value = tag.name;
+        joKanban.elements.addTagModalForm.querySelector('input[type="color"][name="color"]').value = tag.color;
+        joKanban.elements.addTagModalForm.querySelector('input[type="hidden"][name="id"]').value = tagId;
+        // Submit Event Listener on "AddListModal" Form
+        joKanban.elements.addTagModalForm.removeEventListener('submit', joKanban.handleEvent.submitAddTagForm);
+        joKanban.elements.addTagModalForm.removeEventListener('submit', joKanban.handleEvent.submitEditTagForm);
+        joKanban.elements.addTagModalForm.addEventListener('submit', joKanban.handleEvent.submitEditTagForm);
+        joKanban.handleEvent.tools.toggleIsActiveHTMLElement(joKanban.elements.addTagModal);
+      }
+    },
+
+    /**
+     * @method submitEditTagForm Handle Submit event on AddTagModal Form
+     * @param {Event} event - Submit event on AddTagModal Form
+     */
+    submitEditTagForm(event) {
+      var formData = joKanban.handleEvent.tools.getDataFormFrmFormSubmit(event);
+      joKanban.domUpdates.fromUserAction.updateTag(formData);
+      joKanban.handleEvent.tools.toggleIsActiveHTMLElement(joKanban.elements.addTagModal);
+    },
+
+    /**
+     * @method clickDeleteTagBt Handle click event on deleteCard button
+     * @param {String} tagId - Target Tag tagId
+     * @return {CallableFunction} a callable function to Handle click event on deleteCard button 
+     */
+    clickDeleteTagBt(tagId) {
+      return (_) => {
+        const isConfrim = confirm(`Etes vous certain de vouloir supprimer ce tag ?`);
+        if (isConfrim) {
+          joKanban.domUpdates.fromUserAction.deleteTag(tagId);
+        }
+      }
+    },
+
+    /**
      * @method clickDeleteList Handle click event on delete Card Button
      * @param {String} listId - Target List listId
      * @return {CallableFunction} a callable function to Handle click event on delete Card Button 
@@ -330,17 +413,20 @@ const joKanban = {
      */
     clickDeleteCardBt(listId, cardId) {
       return (_) => {
-        joKanban.domUpdates.fromUserAction.deleteCard(listId, cardId);
+        const isConfrim = confirm(`Etes vous certain de vouloir supprimer cette carte ?`);
+        if (isConfrim) {
+          joKanban.domUpdates.fromUserAction.deleteCard(listId, cardId);
+        }
       }
     },
 
     /**
      * @method clickEditCardBt Handle click event on editCard button
-     * @param {String} cardId - Target Card cardId to edit
      * @param {String} listId - Target List listId which come from card to edit
+     * @param {String} cardId - Target Card cardId to edit
      * @return {CallableFunction} a callable function to Handle click event on editCard button 
      */
-    clickEditCardBt() {
+    clickEditCardBt(listId, cardId) {
       return (event) => {
         const cardElmt = event.target.closest('div[card-id]');
 
@@ -349,6 +435,8 @@ const joKanban = {
 
         const cardNameFormElmt = cardElmt.querySelector('form');
         cardNameFormElmt.querySelector('input[type="text"]').value = cardNameElmt.textContent;
+        cardNameFormElmt.querySelector('input[type="hidden"][name="id"]').value = cardId;
+        cardNameFormElmt.querySelector('input[type="hidden"][name="list_id"]').value = listId;
         joKanban.handleEvent.tools.toggleIsHiddenHTMLElement(cardNameFormElmt);
       }
     },
@@ -359,10 +447,10 @@ const joKanban = {
      * @param {String} cardId - target Card cardId
      * @return {CallableFunction} a callable function to Handle submit event on list Title Form
      */
-    submitEditCardForm(listId, cardId) {
+    submitEditCardForm() {
       return async (event) => {
         var formData = joKanban.handleEvent.tools.getDataFormFrmFormSubmit(event);
-        joKanban.domUpdates.fromUserAction.updateCard(formData, listId, cardId);
+        joKanban.domUpdates.fromUserAction.updateCard(formData);
 
         const cardElmt = event.target.closest('div[card-id]');
 
@@ -428,6 +516,15 @@ const joKanban = {
        */
       queryCardElmtById(cardId) {
         return document.querySelector(`div[card-id="${cardId}"]`)
+      },
+
+      /**
+       * @method queryTagElmtInMenuById Get a Tag HTML Element by tagId In Menu
+       * @param {String} tagId
+       * @returns {HTMLElement} Tag HTML Element with tag-id attribut equal to tagId param
+       */
+      queryTagElmtInMenuById(tagId) {
+        return joKanban.elements.containerTagMenu.querySelector(`button[tag-id="${tagId}"]`).closest('li');
       }
     },
     fromUserAction: {
@@ -504,11 +601,9 @@ const joKanban = {
       /**
        * @method updateCard Update card from FormData
        * @param {FormData} formData
-       * @param {String} listId - target List listId
-       * @param {String} cardId - target Card cardId
        */
-      async updateCard(formData, listId, cardId) {
-        const [, card] = joKanban.getDataListNdCardById(listId, cardId);
+      async updateCard(formData) {
+        const [, card] = joKanban.getDataListNdCardById(formData.get('list_id'), formData.get('id'));
 
         card.title = formData.get('title');
         // card.position = formData.get('position');
@@ -518,7 +613,7 @@ const joKanban = {
         if (response) {
           joKanban.domUpdates.updateCardInDom(card);
         } else {
-          const target_card = joKanban.domUpdates.tools.queryCardElmtById(cardId);
+          const target_card = joKanban.domUpdates.tools.queryCardElmtById(card.id);
           card.title = target_card.querySelector('.columns').querySelectorAll('.column')[0].textContent;
           card.color = target_card.style.background;
         }
@@ -540,7 +635,58 @@ const joKanban = {
           joKanban.reIndexCardPositionInOneList(list);
           joKanban.domUpdates.deleteCardInDOM(card);
         }
-      }
+      },
+
+      /**
+       * @method createTag Create Tag from FormData
+       * @param {FormData} formData
+       */
+      async createTag(formData) {
+        let newTag = {
+          name: formData.get('name'),
+          color: formData.get('color'),
+        }
+        newTag = await joKanban.api.tag.postTagToAPI(newTag);
+        if (newTag) {
+          joKanban.tags.push(newTag);
+          joKanban.domUpdates.makeTagInMenu(newTag);
+        }
+      },
+
+      /**
+       * @method updateTag Update Tag from FormData
+       * @param {FormData} formData
+       */
+      async updateTag(formData) {
+        const tag = joKanban.getDataTagById(formData.get('id'));
+
+        tag.name = formData.get('name');
+        tag.color = formData.get('color');
+
+        response = await joKanban.api.tag.updateTagToAPI(tag);
+        if (response) {
+          joKanban.domUpdates.updateTagInDom(tag);
+        } else {
+          const target_tag = joKanban.domUpdates.tools.queryTagElmtInMenuById(tag.id);
+          tag.name = target_tag.querySelector('button').textContent;
+          tag.color = target_tag.style.background;
+        }
+      },
+
+      /**
+       * @method deleteTag Delete Tag from user action
+       * @param {String} tagId - target Tag tagId
+       */
+      async deleteTag(tagId) {
+        const tag = joKanban.getDataTagById(tagId);
+        const response = await joKanban.api.tag.deleteTagById(tagId);
+        if (response) {
+          joKanban.tags = joKanban.tags.filter((tag) => {
+            return tag.id != tagId;
+          });
+          joKanban.domUpdates.deleteTagInDOM(tag);
+        }
+      },
     },
 
     /**
@@ -611,10 +757,10 @@ const joKanban = {
         cardFragment.querySelector('div[card-id]').style.background = card.color;
 
         const editCardBt = cardFragment.querySelector('.fa-pencil-alt').closest('a');
-        editCardBt.addEventListener('click', joKanban.handleEvent.clickEditCardBt());
+        editCardBt.addEventListener('click', joKanban.handleEvent.clickEditCardBt(list.id, card.id));
 
         const cardFormElmt = cardFragment.querySelector('form');
-        cardFormElmt.addEventListener('submit', joKanban.handleEvent.submitEditCardForm(list.id, card.id));
+        cardFormElmt.addEventListener('submit', joKanban.handleEvent.submitEditCardForm());
 
         cardFormElmt.querySelector('input[type="hidden"][name="id"]').value = card.id;
         cardFormElmt.querySelector('input[type="hidden"][name="position"]').value = card.position;
@@ -656,7 +802,6 @@ const joKanban = {
       target_card.remove();
     },
 
-
     /**
      * @method makeTagInMenu Make a tag in menu
      * @param {all} tag tag object
@@ -664,10 +809,39 @@ const joKanban = {
     async makeTagInMenu(tag) {
       if ("content" in document.createElement('template')) {
         const tagFragment = document.importNode(joKanban.elements.templateTag.content, true);
-        tagFragment.querySelector('button').textContent = tag.name;
-        tagFragment.querySelector('button').style.background = tag.color;
-        joKanban.elements.containerTag.appendChild(tagFragment);
+        const buttonElmt = tagFragment.querySelector('button');
+        buttonElmt.textContent = tag.name;
+        buttonElmt.style.background = tag.color;
+        buttonElmt.setAttribute('tag-id', tag.id);
+
+        const editTagBt = tagFragment.querySelector('.fa-pencil-alt').closest('a');
+        editTagBt.addEventListener('click', joKanban.handleEvent.clickEditTagBt(tag.id));
+
+        const deleteTagBt = tagFragment.querySelector('.fa-trash-alt').closest('a');
+        deleteTagBt.addEventListener('click', joKanban.handleEvent.clickDeleteTagBt(tag.id));
+
+        joKanban.elements.containerTagMenu.appendChild(tagFragment);
       }
+    },
+
+    /**
+     * @method updateTagInDom Update a card in DOM.
+     * @param {all} tag tag object
+     */
+    async updateTagInDom(tag) {
+      const target_tag = joKanban.domUpdates.tools.queryTagElmtInMenuById(tag.id);
+      const buttonElmt = target_tag.querySelector('button');
+      buttonElmt.textContent = tag.name;
+      buttonElmt.style.background = tag.color;
+    },
+
+    /**
+     * @method deleteTagInDOM Delete a Tag in DOM
+     * @param {all} tag Tag object
+     */
+    async deleteTagInDOM(tag) {
+      const target_tag = joKanban.domUpdates.tools.queryTagElmtInMenuById(tag.id);
+      target_tag.remove();
     },
 
     /**
@@ -714,21 +888,29 @@ const joKanban = {
    * @method initModalsListener Refresh joKanban listeners on modals
    */
   initModalsListener() {
-    // Submit Event Listener on "AddListModal" Form
-    joKanban.elements.addListModalForm.addEventListener('submit', joKanban.handleEvent.submitAddListForm);
     // Click Event Listener on "add list" Button
     joKanban.elements.addListModalAddButton.addEventListener('click', joKanban.handleEvent.clickAddListBt);
+    // Submit Event Listener on "AddListModal" Form
+    joKanban.elements.addListModalForm.addEventListener('submit', joKanban.handleEvent.submitAddListForm);
     // Click Event Listener on all close Button for "AddListModal"
-    let closeBts = document.getElementById('addListModal').querySelectorAll('.close');
+    let closeBts = joKanban.elements.addListModal.querySelectorAll('.close');
     closeBts.forEach((buttonClose) => {
       buttonClose.addEventListener('click', joKanban.handleEvent.clickToggleModal(joKanban.elements.addListModal));
     });
 
+    // Click Event Listener on "add tag" Button
+    joKanban.elements.addTagModalAddButton.addEventListener('click', joKanban.handleEvent.clickAddTagBt());
+
+    // Click Event Listener on all close Button for "AddListModal"
+    closeBts = joKanban.elements.addTagModal.querySelectorAll('.close');
+    closeBts.forEach((buttonClose) => {
+      buttonClose.addEventListener('click', joKanban.handleEvent.clickToggleModal(joKanban.elements.addTagModal));
+    });
 
     // Submit Event Listener on "AddCardModal" Form
     joKanban.elements.addCardModalForm.addEventListener('submit', joKanban.handleEvent.submitAddCardForm);
     // Click Event Listener on all close Button for "AddCardModal"
-    closeBts = document.getElementById('addCardModal').querySelectorAll('.close');
+    closeBts = joKanban.elements.addCardModal.querySelectorAll('.close');
     closeBts.forEach((buttonClose) => {
       buttonClose.addEventListener('click', joKanban.handleEvent.clickToggleModal(joKanban.elements.addCardModal));
     });

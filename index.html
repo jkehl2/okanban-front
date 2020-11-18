@@ -17,8 +17,11 @@
             <h1 class="title">
                 JoKanban
             </h1>
+            <h2 class="subtitle">
+                A simple kanban for your own
+            </h2>
             <div class="columns">
-                <div class="column is-narrow is-one-fifth">
+                <div class="column is-narrow">
                     <aside class="menu ">
                         <p class="menu-label"> General </p>
                         <ul class="menu-list">
@@ -42,14 +45,12 @@
                             </li>
                         </ul>
                         <p class="menu-label"> Tags </p>
-                        <ul class="menu-list">
-                            <li>
-                                <div class="buttons" id="tags-menu"> </div>
-                            </li>
+                        <ul class="menu-list" id="tags-menu">
+
                         </ul>
                     </aside>
                 </div>
-                <div class="column">
+                <div class="column ">
                     <div class="card-lists columns"></div>
                 </div>
             </div>
@@ -85,20 +86,20 @@
         <div class="modal-card">
             <form id="modalTagForm" action="" method="POST">
                 <header class="modal-card-head">
-                    <p class="modal-card-title">Ajouter un tag</p>
+                    <p class="modal-card-title">Ajouter/Modifier un tag</p>
                     <button class="delete close" type="button" aria-label="close"></button>
                 </header>
                 <section class="modal-card-body">
                     <div class="field">
-                        <label class="label" for="title">Nom</label>
+                        <label class="label">Nom</label>
                         <div class="control">
-                            <input id="title" type="text" class="input" name="name" value=""
-                                placeholder="Titre de la carte">
+                            <input type="text" class="input" name="name" value="" placeholder="Nom du tag">
                         </div>
                         <label class="label" for="title">Couleur</label>
                         <div class="control">
                             <input type="color" class="input is-small" name="color" value="#ffffff">
                         </div>
+                        <input type="hidden" name="id" value="">
                     </div>
                 </section>
                 <footer class="modal-card-foot">
@@ -119,10 +120,9 @@
                 </header>
                 <section class="modal-card-body">
                     <div class="field">
-                        <label class="label" for="title">Nom</label>
+                        <label class="label">Titre</label>
                         <div class="control">
-                            <input id="title" type="text" class="input" name="title" value=""
-                                placeholder="Titre de la carte">
+                            <input type="text" class="input" name="title" value="" placeholder="Titre de la carte">
                         </div>
                         <label class="label" for="title">Couleur</label>
                         <div class="control">
@@ -141,11 +141,11 @@
     </div>
 
     <template id="template_list">
-        <div class="column is-one-quarter panel" list-id="A">
+        <div class="column is-one-quarter panel" list-id="">
             <div class="panel-heading has-background-info">
                 <div class="columns">
                     <div class="column">
-                        <h2 class="has-text-white">Perso</h2>
+                        <h2 class="has-text-white"></h2>
 
                         <form action="" method="POST" class="is-hidden">
                             <div class="field has-addons">
@@ -180,14 +180,35 @@
             <div class="panel-block is-block has-background-light"></div>
         </div>
     </template>
+
     <template id="template_tag">
-        <button class="button is-rounded is-small"></button>
-    </template>
-    <template id="template_card">
-        <div class="box" card-id="I">
-            <div class="columns">
-                <div class="column">
+        <li>
+            <div class="is-flex is-flex-direction-row is-flex-wrap-nowrap is-justify-content-space-between is-align-content-space-between"
+                style="width: 100%;">
+                <div style="flex-grow: 1;">
+                    <button class="button is-rounded is-small" style="width: 100%;" tag-id=""></button>
                 </div>
+                <div
+                    class="is-flex is-flex-direction-row is-flex-wrap-nowrap is-justify-content-space-around is-align-content-space-around">
+                    <a href="#">
+                        <span class="icon is-small has-text-primary">
+                            <i class="fas fa-pencil-alt"></i>
+                        </span>
+                    </a>
+                    <a href="#">
+                        <span class="icon is-small has-text-danger">
+                            <i class="fas fa-trash-alt"></i>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </li>
+    </template>
+
+    <template id="template_card">
+        <div class="box" card-id="">
+            <div class="columns">
+                <div class="column"></div>
                 <form action="" method="POST" class="is-hidden">
                     <div class="field has-addons">
                         <div class="control">

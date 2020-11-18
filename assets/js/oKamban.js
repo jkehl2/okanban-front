@@ -42,6 +42,7 @@ const oKamban = {
       async postNewListToAPI(newList) {
         return oKamban.api.sendRequest(`${oKamban.api.base_url}/list`, "POST", newList);
       },
+
       /** 
        * @method updateListToAPI Update a List to API
        * @param {any} list A List Object for sending to API
@@ -75,6 +76,7 @@ const oKamban = {
       async deleteCardById(cardId) {
         return oKamban.api.sendRequest(`${oKamban.api.base_url}/card/${cardId}`, "DELETE", null);
       },
+
       /** 
        * @method updateCardToAPI Update a card to API
        * @param {any} card A card Object for sending to API
@@ -226,7 +228,7 @@ const oKamban = {
      * @param {String} listId - Target List listId which come from card to edit
      * @return {CallableFunction} a callable function to Handle click event on editCard button 
      */
-    clickEditCardOnList(cardId, listId) {
+    clickEditCardOnList() {
       return (event) => {
         const cardElmt = event.target.closest('div[card-id]');
 
@@ -292,7 +294,6 @@ const oKamban = {
      * @return {CallableFunction} a callable function to Handle submit event on list Title Form
      */
     submitListTitleForm(listId) {
-      // TODO REVOIR la méthode pour bien séparer le handle de la modification des données (pti bisous)
       return async (event) => {
         var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
         const listElmt = document.querySelector(`div[list-id="${listId}"]`);
@@ -304,9 +305,6 @@ const oKamban = {
           list.name = formData.get("list-name");
           oKamban.domUpdates.updateList(listId);
         }
-
-
-
         oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(listElmt.querySelector('form'));
         oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(listElmt.querySelector('h2'));
       }
@@ -453,7 +451,7 @@ const oKamban = {
           //newCard.querySelector('div[card-id]').style.background = formData.get('formCardColor');
 
           const editCardBt = newCard.querySelector('.fa-pencil-alt').closest('a');
-          editCardBt.addEventListener('click', oKamban.handleEvent.clickEditCardOnList(cardTmp.id, listTmp.id));
+          editCardBt.addEventListener('click', oKamban.handleEvent.clickEditCardOnList());
 
           const cardeTitleFormElmt = newCard.querySelector('form');
           cardeTitleFormElmt.addEventListener('submit', oKamban.handleEvent.submitCardNameForm(cardTmp.id, listTmp.id));
@@ -517,7 +515,7 @@ const oKamban = {
           deleteCardBt.addEventListener('click', oKamban.handleEvent.clickDeleteCardOnList(apiCardObj.id, listId));
 
           const editCardBt = cardDiv.querySelector('.fa-pencil-alt').closest('a');
-          editCardBt.addEventListener('click', oKamban.handleEvent.clickEditCardOnList(apiCardObj.id, listId));
+          editCardBt.addEventListener('click', oKamban.handleEvent.clickEditCardOnList());
 
           const cardeTitleFormElmt = cardDiv.querySelector('form');
           cardeTitleFormElmt.addEventListener('submit', oKamban.handleEvent.submitCardNameForm(apiCardObj.id, listId));

@@ -210,13 +210,13 @@ const joKanban = {
     },
 
     /**
-     * @method clickToggleIsActiveHTMLElement Handle click on toggle display HTML Element button   
-     * @param {HTMLElement} htmlElmt - HTML Element to toggle display 
+     * @method clickToggleModal Handle click on toggle display HTML Element button   
+     * @param {HTMLElement} modalElmt - HTML Element to toggle display 
      * @returns {CallableFunction} a callable function to Handle click on toggle display HTML Element button 
      */
-    clickToggleIsActiveHTMLElement(htmlElmt) {
+    clickToggleModal(modalElmt) {
       return (_) => {
-        joKanban.handleEvent.tools.toggleIsActiveHTMLElement(htmlElmt);
+        joKanban.handleEvent.tools.toggleIsActiveHTMLElement(modalElmt);
       };
     },
 
@@ -660,7 +660,7 @@ const joKanban = {
     // Click Event Listener on all close Button for "AddListModal"
     let closeBts = document.getElementById('addListModal').querySelectorAll('.close');
     closeBts.forEach((buttonClose) => {
-      buttonClose.addEventListener('click', joKanban.handleEvent.clickToggleIsActiveHTMLElement(joKanban.elements.addListModal));
+      buttonClose.addEventListener('click', joKanban.handleEvent.clickToggleModal(joKanban.elements.addListModal));
     });
 
 
@@ -669,7 +669,7 @@ const joKanban = {
     // Click Event Listener on all close Button for "AddCardModal"
     closeBts = document.getElementById('addCardModal').querySelectorAll('.close');
     closeBts.forEach((buttonClose) => {
-      buttonClose.addEventListener('click', joKanban.handleEvent.clickToggleIsActiveHTMLElement(joKanban.elements.addCardModal));
+      buttonClose.addEventListener('click', joKanban.handleEvent.clickToggleModal(joKanban.elements.addCardModal));
     });
   },
 

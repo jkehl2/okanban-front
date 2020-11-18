@@ -205,7 +205,7 @@ const oKanban = {
     clickAddCardModal(listId) {
       return (_) => {
         const addCardModal = document.getElementById('addCardModal');
-        addCardModal.querySelector('#formCardList_id').value = listId;
+        addCardModal.querySelector('#list_id').value = listId;
         oKanban.handleEvent.tools.toggleIsActiveHTMLElement(oKanban.elements.addCardModal);
       }
     },
@@ -345,7 +345,7 @@ const oKanban = {
         const list = oKanban.data.find((list) => {
           return list.id == listId;
         });
-        list.name = formData.get("list-name");
+        list.name = formData.get("name");
         const response = await oKanban.api.list.updateListToAPI(list);
 
         if (response) {
@@ -362,10 +362,10 @@ const oKanban = {
        */
       async createCard(formData) {
         let parentList = oKanban.data.find((list) => {
-          return list.id == formData.get('formCardList_id')
+          return list.id == formData.get('list_id');
         });
         let newCard = {
-          title: formData.get('formCardName'),
+          title: formData.get('title'),
           position: parentList.cards.length,
           // color : formData.get('formCardColor'),
           list_id: parentList.id
@@ -392,7 +392,7 @@ const oKanban = {
           return card.id == cardId;
         })
 
-        card.title = formData.get('carte-name');
+        card.title = formData.get('title');
         // card.position = formData.get('carte-position');
         // card.color = formData.get('carte-color');
 

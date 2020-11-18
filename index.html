@@ -43,9 +43,9 @@
                 </header>
                 <section class="modal-card-body">
                     <div class="field">
-                        <label class="label" for="formListName">Nom</label>
+                        <label class="label" for="name">Nom</label>
                         <div class="control">
-                            <input id="formListName" type="text" class="input" name="formListName" value=""
+                            <input id="name" type="text" class="input" name="name" value=""
                                 placeholder="Nom de la liste">
                         </div>
                     </div>
@@ -73,7 +73,9 @@
                             <input id="title" type="text" class="input" name="title" value=""
                                 placeholder="Titre de la carte">
                         </div>
-                        <input type="hidden" name="list_id" id="list_id" value="">
+                        <input type="color" class="input is-small" name="color" value="#ff0000">
+                        <input type="hidden" name="position" value="">
+                        <input type="hidden" name="list_id" value="">
                     </div>
                 </section>
                 <footer class="modal-card-foot">
@@ -107,9 +109,15 @@
                     </div>
 
                     <div class="column is-narrow">
-                        <a href="#" class="is-pulled-right addCardBt">
+                        <a href="#" >
                             <span class="icon is-small has-text-white">
                                 <i class="fas fa-plus"></i>
+                            </span>
+                        </a>
+
+                        <a href="#" >
+                            <span class="icon is-small has-text-danger">
+                                <i class="fas fa-trash-alt"></i>
                             </span>
                         </a>
                     </div>
@@ -129,10 +137,10 @@
                         <div class="control">
                             <input type="text" class="input is-small" name="title" value=""
                                 placeholder="Nom de la carte">
+                            <input type="color" class="input is-small" name="color" value="#ffffff">
                         </div>
                         <input type="hidden" name="id" value="">
                         <input type="hidden" name="position" value="">
-                        <input type="hidden" name="color" value="">
                         <input type="hidden" name="list_id" value="">
                         <div class="control">
                             <button class="button is-small is-success">Valider</button>

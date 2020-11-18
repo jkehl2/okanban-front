@@ -295,7 +295,6 @@ const joKanban = {
      * @param {Event} event - Click event on Add Tag Button
      */
     clickAddTagBt() {
-      return (_) => {
         joKanban.elements.addTagModalForm.querySelector('input[type="text"][name="name"]').value = '';
         joKanban.elements.addTagModalForm.querySelector('input[type="color"][name="color"]').value = '#ffffff';
         // Submit Event Listener on "AddListModal" Form
@@ -303,7 +302,6 @@ const joKanban = {
         joKanban.elements.addTagModalForm.removeEventListener('submit', joKanban.handleEvent.submitEditTagForm);
         joKanban.elements.addTagModalForm.addEventListener('submit', joKanban.handleEvent.submitAddTagForm);
         joKanban.handleEvent.tools.toggleIsActiveHTMLElement(joKanban.elements.addTagModal);
-      }
     },
 
     /**
@@ -770,8 +768,6 @@ const joKanban = {
         const deleteCardBt = cardFragment.querySelector('.fa-trash-alt').closest('a');
         deleteCardBt.addEventListener('click', joKanban.handleEvent.clickDeleteCardBt(list.id, card.id));
 
-
-
         card_container.appendChild(cardFragment);
       }
     },
@@ -899,7 +895,7 @@ const joKanban = {
     });
 
     // Click Event Listener on "add tag" Button
-    joKanban.elements.addTagModalAddButton.addEventListener('click', joKanban.handleEvent.clickAddTagBt());
+    joKanban.elements.addTagModalAddButton.addEventListener('click', joKanban.handleEvent.clickAddTagBt);
 
     // Click Event Listener on all close Button for "AddListModal"
     closeBts = joKanban.elements.addTagModal.querySelectorAll('.close');

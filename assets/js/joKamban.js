@@ -55,7 +55,9 @@ const joKanban = {
     addCardModalForm: document.getElementById('modalCardForm'),
     templateList: document.getElementById('template_list'),
     templateCard: document.getElementById('template_card'),
-    containerList: document.querySelector('.card-lists')
+    containerList: document.querySelector('.card-lists'),
+    templateTag: document.getElementById('template_tag'),
+    containerTag: document.getElementById('tags-menu')
   },
 
   api: {
@@ -654,31 +656,55 @@ const joKanban = {
       target_card.remove();
     },
 
+
     /**
-     * @method makeAllListWithCardsFromApi  Make and Add new Liste with cards in body from API Response
-     * @param {Array} lists Array of list Object from API response
+     * @method makeTagInMenu Make a tag in menu
+     * @param {all} tag tag object
      */
-    makeAllListWithCardsFromApi(lists) {
+    async makeTagInMenu(tag) {
       if ("content" in document.createElement('template')) {
-        lists.sort((apiListObj1, apiListObj2) => {
-          return apiListObj1.position < apiListObj2.position ? -1 : (apiListObj1.position > apiListObj2.position ? 1 : 0);
-        }).forEach((apiListObj) => {
-          joKanban.domUpdates.makeListInDOM(apiListObj);
-          joKanban.domUpdates.makeAllCardsFromApiInList(apiListObj);
+        const tagFragment = document.importNode(joKanban.elements.templateTag.content, true);
+        tagFragment.querySelector('button').textContent = tag.name;
+        tagFragment.querySelector('button').style.background = tag.color;
+        joKanban.elements.containerTag.appendChild(tagFragment);
+      }
+    },
+
+    /**
+     * @method makeAllListWithCardsFromApi  Make Lists nd cards in DOM from API Response
+     */
+    makeAllListWithCardsFromApi() {
+      if ("content" in document.createElement('template')) {
+        joKanban.data.sort((list1, list2) => {
+          return list1.position < list2.position ? -1 : (list1.position > list2.position ? 1 : 0);
+        }).forEach((list) => {
+          joKanban.domUpdates.makeListInDOM(list);
+          joKanban.domUpdates.makeAllCardsFromApiInList(list);
         });
       }
     },
 
     /**
-     * @method makeAllCardsFromApiInList  Make and Add new Liste with cards in body from API Response
+     * @method makeAllCardsFromApiInList  Make Cards in DOM from API Response
      * @param {all} list list object
      */
     makeAllCardsFromApiInList(list) {
       if ("content" in document.createElement('template')) {
-        list.cards.sort((apiCardObj1, apiCardObj2) => {
-          return apiCardObj1.position < apiCardObj2.position ? -1 : (apiCardObj1.position > apiCardObj2.position ? 1 : 0);
-        }).forEach((apiCardObj) => {
-          joKanban.domUpdates.makeCardInDom(list, apiCardObj);
+        list.cards.sort((card1, card2) => {
+          return card1.position < card2.position ? -1 : (card1.position > card2.position ? 1 : 0);
+        }).forEach((card) => {
+          joKanban.domUpdates.makeCardInDom(list, card);
+        });
+      }
+    },
+
+    /**
+     * @method makeAllTagsFromApi  Make Tags in DOM from API Response
+     */
+    makeAllTagsFromApi() {
+      if ("content" in document.createElement('template')) {
+        joKanban.tags.forEach((tag) => {
+          joKanban.domUpdates.makeTagInMenu(tag);
         });
       }
     },
@@ -714,8 +740,12 @@ const joKanban = {
   async refreshjOkanban() {
     joKanban.data = await joKanban.api.list.getListsFromAPI();
     if (joKanban.data) {
-      joKanban.domUpdates.makeAllListWithCardsFromApi(joKanban.data);
+      joKanban.domUpdates.makeAllListWithCardsFromApi();
       joKanban.reIndexListNdCardPosition();
+    }
+    joKanban.tags = await joKanban.api.tag.getTagsFromAPI();
+    if (joKanban.data) {
+      joKanban.domUpdates.makeAllTagsFromApi();
     }
   },
 

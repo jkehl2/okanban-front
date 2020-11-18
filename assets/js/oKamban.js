@@ -421,10 +421,11 @@ const oKanban = {
         })
         const response = await oKanban.api.card.deleteCardById(cardId);
         if (response) {
-          oKanban.domUpdates.deleteCardInDOM(card);
           list.cards = list.cards.filter((card) => {
             return card.id != cardId;
           });
+          oKanban.reIndexCardPositionInOneList(list);
+          oKanban.domUpdates.deleteCardInDOM(card);
         }
       }
     },
@@ -460,8 +461,13 @@ const oKanban = {
      */
     async updateListInDom(list) {
       const target_list = oKanban.domUpdates.tools.queryListElmtById(list.id);
+
       const listTitleElmt = target_list.querySelector('h2');
       listTitleElmt.textContent = list.name;
+
+      const listFormElmt = target_list.querySelector('form');
+      listFormElmt.querySelector('input[type="hidden"][name="id"]').value = list.id;
+      listFormElmt.querySelector('input[type="hidden"][name="position"]').value = list.position;
     },
 
     /**
@@ -505,6 +511,13 @@ const oKanban = {
       const target_card = oKanban.domUpdates.tools.queryCardElmtById(card.id);
       target_card.querySelector('.columns').querySelectorAll('.column')[0].textContent = card.title;
       target_card.style.background = card.color;
+
+      const cardFormElmt = target_card.querySelector('form');
+
+      cardFormElmt.querySelector('input[type="hidden"][name="id"]').value = card.id;
+      cardFormElmt.querySelector('input[type="hidden"][name="position"]').value = card.position;
+      cardFormElmt.querySelector('input[type="hidden"][name="color"]').value = card.color;
+      cardFormElmt.querySelector('input[type="hidden"][name="list_id"]').value = card.list_id;
     },
 
     /**
@@ -577,6 +590,45 @@ const oKanban = {
     oKanban.data = await oKanban.api.list.getListsFromAPI();
     if (oKanban.data) {
       oKanban.domUpdates.makeAllListWithCardsFromApi(oKanban.data);
+      oKanban.reIndexListNdCardPosition();
+    }
+  },
+
+  /**
+   * @method refrechAllListNdCardPosition Re-index All List and Card position
+   */
+  reIndexListNdCardPosition() {
+    try {
+      let pos = 0;
+      oKanban.data.sort((list1, list2) => {
+        return list1.position < list2.position ? -1 : (list1.position > list2.position ? 1 : 0);
+      }).forEach(async (list) => {
+        list.position = pos++;
+        await oKanban.api.list.updateListToAPI(list);
+        oKanban.domUpdates.updateListInDom(list);
+        oKanban.reIndexCardPositionInOneList(list);
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  },
+
+  /**
+   * @method reIndexCardPositionInOneList Re-index Card position in a single list
+   * @param {all} list Target List object
+   */
+  reIndexCardPositionInOneList(list) {
+    try {
+      let pos = 0;
+      list.cards.sort((card1, card2) => {
+        return card1.position < card2.position ? -1 : (card1.position > card2.position ? 1 : 0);
+      }).forEach(async (card) => {
+        card.position = pos++;
+        await oKanban.api.card.updateCardToAPI(card);
+        oKanban.domUpdates.updateCardInDom(card);
+      });
+    } catch (err) {
+      console.error(err);
     }
   }
 };

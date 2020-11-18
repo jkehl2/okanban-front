@@ -442,6 +442,11 @@ const oKanban = {
         listTitleElmt.textContent = list.name;
         listTitleElmt.addEventListener('dblclick', oKanban.handleEvent.dblClickOnListTitle(list.id));
 
+        const listFormElmt = fragmentList.querySelector('form');
+        listFormElmt.addEventListener('submit', oKanban.handleEvent.submitUpdateListForm(list.id));
+        listFormElmt.querySelector('input[type="hidden"][name="id"]').value = list.id;
+        listFormElmt.querySelector('input[type="hidden"][name="position"]').value = list.position;
+
         const addCardBt = fragmentList.querySelector('.fa-plus').closest('a');
         addCardBt.addEventListener('click', oKanban.handleEvent.clickAddCardModal(list.id));
 

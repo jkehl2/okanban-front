@@ -319,6 +319,11 @@ const oKamban = {
       }
     },
     fromFormData: {
+
+      /**
+       * @method createList Create list from FormData
+       * @param {FormData} formData
+       */
       async createList(formData) {
         let newList = {
           name: formData.get('formListName'),
@@ -332,6 +337,11 @@ const oKamban = {
         }
       },
 
+      /**
+       * @method updateList Update list from FormData
+       * @param {FormData} formData
+       * @param {String} listId - target List listId
+       */
       async updateList(formData, listId) {
         const list = oKamban.data.find((list) => {
           return list.id == listId;
@@ -347,6 +357,10 @@ const oKamban = {
         }
       },
 
+      /**
+       * @method createCard Create card from FormData
+       * @param {FormData} formData
+       */
       async createCard(formData) {
         let parentList = oKamban.data.find((list) => {
           return list.id == formData.get('formCardList_id')
@@ -364,6 +378,12 @@ const oKamban = {
         }
       },
 
+      /**
+       * @method updateCard Update card from FormData
+       * @param {FormData} formData
+       * @param {String} listId - target List listId
+       * @param {String} cardId - target Card cardId
+       */
       async updateCard(formData, listId, cardId) {
         const list = oKamban.data.find((list) => {
           return list.id == listId;
@@ -387,6 +407,11 @@ const oKamban = {
         }
       },
 
+      /**
+       * @method deleteCard Delete card from user action
+       * @param {String} listId - target List listId
+       * @param {String} cardId - target Card cardId
+       */
       async deleteCard(listId, cardId) {
         const list = oKamban.data.find((list) => {
           return list.id == listId;

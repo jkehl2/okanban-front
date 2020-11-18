@@ -926,7 +926,7 @@ const joKanban = {
       joKanban.reIndexListNdCardPosition();
     }
     joKanban.tags = await joKanban.api.tag.getTagsFromAPI();
-    if (joKanban.data) {
+    if (joKanban.tags) {
       joKanban.domUpdates.makeAllTagsFromApi();
     }
   },

@@ -61,12 +61,12 @@ const oKamban = {
       },
 
       /** 
-       * @method postNewCardToAPI Post a new Card to API
-       * @param {any} newCard A new Card Object for sending to API
+       * @method postcardFragmentToAPI Post a new Card to API
+       * @param {any} cardFragment A new Card Object for sending to API
        * @returns {Promise} A Card Object from API with id
        */
-      async postNewCardToAPI(newCard) {
-        return oKamban.api.sendRequest(`${oKamban.api.base_url}/card`, "POST", newCard);
+      async postcardFragmentToAPI(cardFragment) {
+        return oKamban.api.sendRequest(`${oKamban.api.base_url}/card`, "POST", cardFragment);
       },
 
       /** 
@@ -183,7 +183,7 @@ const oKamban = {
      */
     submitAddListForm(event) {
       var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
-      oKamban.domUpdates.makeListInDOM(formData);
+      oKamban.domUpdates.fromFormData.createList(formData);
       oKamban.handleEvent.tools.toggleIsActiveHTMLElement(oKamban.elements.addListModal);
     },
 
@@ -193,7 +193,7 @@ const oKamban = {
      */
     submitAddCardForm(event) {
       var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
-      oKamban.domUpdates.makeCardInList(formData);
+      oKamban.domUpdates.fromFormData.createCard(formData);
       oKamban.handleEvent.tools.toggleIsActiveHTMLElement(oKamban.elements.addCardModal);
     },
 
@@ -332,30 +332,90 @@ const oKamban = {
         return document.querySelector(`div[card-id="${cardId}"]`)
       }
     },
+    fromFormData: {
+      async createList(formData) {
+        let newList = {
+          name: formData.get('formListName'),
+          position: oKamban.data.length
+        };
+        newList = await oKamban.api.list.postNewListToAPI(newList);
+        if (newList) {
+          oKamban.data.push(newList);
+          oKamban.domUpdates.makeListInDOM(newList);
+        }
+      },
+      async updateList(formData) {
+
+      },
+      async createCard(formData) {
+        let parentList = oKamban.data.find((list) => {
+          return list.id == formData.get('formCardList_id')
+        });
+        let newCard = {
+          title: formData.get('formCardName'),
+          position: parentList.cards.length,
+          // color : formData.get('formCardColor'),
+          list_id: parentList.id
+        }
+        newCard = await oKamban.api.card.postcardFragmentToAPI(newCard);
+        if (newCard) {
+          parentList.cards.push(newCard);
+          oKamban.domUpdates.makeCardInDom(parentList, newCard);
+        }
+      },
+      async updateCard(formData) {
+
+      },
+      async deleteCard(formData) {
+
+      }
+    },
 
     /**
      * @method makeListInDOM  Make and Add a new Liste in body
-     * @param {FormData} formData form data from AddListModal Form
+     * @param {all} list list object
      */
-    async makeListInDOM(formData) {
-      const listTmp = await oKamban.api.list.postNewListToAPI({
-        name: formData.get('formListName'),
-        position: oKamban.data.length
-      });
-      if (listTmp) {
-        oKamban.data.push(listTmp);
-        if ("content" in document.createElement('template')) {
-          const newList = document.importNode(oKamban.elements.templateList.content, true);
-          newList.querySelector('div[list-id]').setAttribute('list-id', listTmp.id);
+    makeListInDOM(list) {
+      if ("content" in document.createElement('template')) {
+        const fragmentList = document.importNode(oKamban.elements.templateList.content, true);
+        fragmentList.querySelector('div[list-id]').setAttribute('list-id', list.id);
 
-          const listTitleElmt = newList.querySelector('h2');
-          listTitleElmt.textContent = formData.get('formListName');
-          listTitleElmt.addEventListener('dblclick', oKamban.handleEvent.dblClickOnListTitle(listTmp.id));
+        const listTitleElmt = fragmentList.querySelector('h2');
+        listTitleElmt.textContent = list.name;
+        listTitleElmt.addEventListener('dblclick', oKamban.handleEvent.dblClickOnListTitle(list.id));
 
-          const addCardBt = newList.querySelector('.fa-plus');
-          addCardBt.addEventListener('click', oKamban.handleEvent.clickAddCardModal(listTmp.id));
-          oKamban.elements.containerList.appendChild(newList);
-        }
+        const addCardBt = fragmentList.querySelector('.fa-plus').closest('a');
+        addCardBt.addEventListener('click', oKamban.handleEvent.clickAddCardModal(list.id));
+
+        oKamban.elements.containerList.appendChild(fragmentList);
+      }
+    },
+
+    /**
+     * @method makeCardInDom Make and Add a new Card in a spécific List
+     * @param {all} list list object
+     * @param {all} card card object
+     */
+    async makeCardInDom(list, card) {
+      if ("content" in document.createElement('template')) {
+        const target_list = oKamban.domUpdates.tools.queryListElmtById(list.id);
+        const card_container = target_list.querySelector('.panel-block');
+        const cardFragment = document.importNode(oKamban.elements.templateCard.content, true);
+
+        cardFragment.querySelector('.columns').querySelectorAll('.column')[0].textContent = card.title;
+        cardFragment.querySelector('div[card-id]').setAttribute('card-id', card.id);
+        cardFragment.querySelector('div[card-id]').style.background = card.color;
+
+        const editCardBt = cardFragment.querySelector('.fa-pencil-alt').closest('a');
+        editCardBt.addEventListener('click', oKamban.handleEvent.clickEditCardOnList());
+
+        const cardeTitleFormElmt = cardFragment.querySelector('form');
+        cardeTitleFormElmt.addEventListener('submit', oKamban.handleEvent.submitCardNameForm(card.id, list.id));
+
+        const deleteCardBt = cardFragment.querySelector('.fa-trash-alt').closest('a');
+        deleteCardBt.addEventListener('click', oKamban.handleEvent.clickDeleteCardOnList(card.id, list.id));
+
+        card_container.appendChild(cardFragment);
       }
     },
 
@@ -428,102 +488,33 @@ const oKamban = {
     },
 
     /**
-     * @method makeCardInList Make and Add a new Card in a spécific List
-     * @param {FormData} formData form data from AddListModal Form
-     */
-    async makeCardInList(formData) {
-      const listTmp = oKamban.data.find((list) => {
-        return list.id == formData.get('formCardList_id')
-      });
-      const cardTmp = await oKamban.api.card.postNewCardToAPI({
-        title: formData.get('formCardName'),
-        position: listTmp.cards.length,
-        list_id: listTmp.id
-      });
-      if (cardTmp) {
-        listTmp.cards.push(cardTmp);
-        if ("content" in document.createElement('template')) {
-          const target_list = oKamban.domUpdates.tools.queryListElmtById(formData.get('formCardList_id'));
-          const card_container = target_list.querySelector('.panel-block');
-          const newCard = document.importNode(oKamban.elements.templateCard.content, true);
-          newCard.querySelector('.columns').querySelectorAll('.column')[0].textContent = formData.get('formCardName');
-          newCard.querySelector('div[card-id]').setAttribute('card-id', cardTmp.id);
-          //newCard.querySelector('div[card-id]').style.background = formData.get('formCardColor');
-
-          const editCardBt = newCard.querySelector('.fa-pencil-alt').closest('a');
-          editCardBt.addEventListener('click', oKamban.handleEvent.clickEditCardOnList());
-
-          const cardeTitleFormElmt = newCard.querySelector('form');
-          cardeTitleFormElmt.addEventListener('submit', oKamban.handleEvent.submitCardNameForm(cardTmp.id, listTmp.id));
-
-          const deleteCardBt = newCard.querySelector('.fa-trash-alt').closest('a');
-          deleteCardBt.addEventListener('click', oKamban.handleEvent.clickDeleteCardOnList(cardTmp.id, listTmp.id));
-
-          card_container.appendChild(newCard);
-        }
-      }
-
-    },
-
-    /**
-     * @method makeListWithCardsFromApi  Make and Add new Liste with cards in body from API Response
+     * @method makeAllListWithCardsFromApi  Make and Add new Liste with cards in body from API Response
      * @param {Array} lists Array of list Object from API response
      */
-    makeListWithCardsFromApi(lists) {
+    makeAllListWithCardsFromApi(lists) {
       if ("content" in document.createElement('template')) {
         lists.sort((apiListObj1, apiListObj2) => {
           return apiListObj1.position < apiListObj2.position ? -1 : (apiListObj1.position > apiListObj2.position ? 1 : 0);
         }).forEach((apiListObj) => {
-          const newList = document.importNode(oKamban.elements.templateList.content, true);
-          newList.querySelector('div[list-id]').setAttribute('list-id', apiListObj.id);
-
-          const listTitleElmt = newList.querySelector('h2');
-          listTitleElmt.textContent = apiListObj.name;
-          listTitleElmt.addEventListener('dblclick', oKamban.handleEvent.dblClickOnListTitle(apiListObj.id));
-
-          const listTitleFormElmt = newList.querySelector('form');
-          listTitleFormElmt.addEventListener('submit', oKamban.handleEvent.submitListTitleForm(apiListObj.id));
-
-          const addCardBt = newList.querySelector('.addCardBt');
-          addCardBt.addEventListener('click', oKamban.handleEvent.clickAddCardModal(apiListObj.id));
-          const cardContainer = newList.querySelector('.panel-block');
-          oKamban.domUpdates.makeCardFromApiToList(apiListObj.cards, cardContainer, apiListObj.id);
-          oKamban.elements.containerList.appendChild(newList);
+          oKamban.domUpdates.makeListInDOM(apiListObj);
+          oKamban.domUpdates.makeAllCardsFromApiInList(apiListObj);
         });
       }
     },
 
     /**
-     * @method makeCardFromApiToList  Make and Add new Liste with cards in body from API Response
-     * @param {Array} cards Array of cards Object from API response
-     * @param {HTMLElement} cardContainer Card container
-     * @param {String} listId listId
+     * @method makeAllCardsFromApiInList  Make and Add new Liste with cards in body from API Response
+     * @param {all} list list object
      */
-    makeCardFromApiToList(cards, cardContainer, listId) {
+    makeAllCardsFromApiInList(list) {
       if ("content" in document.createElement('template')) {
-        cards.sort((apiCardObj1, apiCardObj2) => {
+        list.cards.sort((apiCardObj1, apiCardObj2) => {
           return apiCardObj1.position < apiCardObj2.position ? -1 : (apiCardObj1.position > apiCardObj2.position ? 1 : 0);
         }).forEach((apiCardObj) => {
-          const newCard = document.importNode(oKamban.elements.templateCard.content, true);
-          newCard.querySelector('.columns').querySelectorAll('.column')[0].textContent = apiCardObj.title;
-
-          cardDiv = newCard.querySelector('div[card-id]');
-          cardDiv.setAttribute('card-id', apiCardObj.id);
-          cardDiv.style.background = apiCardObj.color;
-
-          const deleteCardBt = cardDiv.querySelector('.fa-trash-alt').closest('a');
-          deleteCardBt.addEventListener('click', oKamban.handleEvent.clickDeleteCardOnList(apiCardObj.id, listId));
-
-          const editCardBt = cardDiv.querySelector('.fa-pencil-alt').closest('a');
-          editCardBt.addEventListener('click', oKamban.handleEvent.clickEditCardOnList());
-
-          const cardeTitleFormElmt = cardDiv.querySelector('form');
-          cardeTitleFormElmt.addEventListener('submit', oKamban.handleEvent.submitCardNameForm(apiCardObj.id, listId));
-
-          cardContainer.appendChild(newCard);
+          oKamban.domUpdates.makeCardInDom(list, apiCardObj);
         });
       }
-    }
+    },
   },
 
   /**
@@ -556,7 +547,7 @@ const oKamban = {
   async refreshOkamban() {
     oKamban.data = await oKamban.api.list.getListsFromAPI();
     if (oKamban.data) {
-      oKamban.domUpdates.makeListWithCardsFromApi(oKamban.data);
+      oKamban.domUpdates.makeAllListWithCardsFromApi(oKamban.data);
     }
   }
 };

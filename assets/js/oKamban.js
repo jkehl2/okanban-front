@@ -30,22 +30,8 @@ const oKamban = {
        * @method getListsFromAPI Get all list from API
        * @returns {Promise} Array of List Object from API
        */
-      async getListsFromAPI() {
-        try {
-          const response = await fetch(`${oKamban.api.base_url}/list`);
-          const data = await response.json();
-          if (response.status == 200) {
-            return data;
-          } else if (data.error) {
-            console.log(data.error);
-            alert(data.error);
-            return null;
-          } else {
-            throw new Error('Unexpected server error occured');
-          }
-        } catch (err) {
-          console.error(err);
-        }
+      getListsFromAPI() {
+        return oKamban.api.sendRequest(`${oKamban.api.base_url}/list`, "GET", null);
       },
 
       /** 
@@ -54,56 +40,14 @@ const oKamban = {
        * @returns {Promise} A List Object from API with id
        */
       async postNewListToAPI(newList) {
-        try {
-          const response = await fetch(`${oKamban.api.base_url}/list`, {
-            headers: {
-              'Authorization': 'Bearer token',
-              'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            method: "POST",
-            body: oKamban.api.asUrlFormEncoded(newList)
-          });
-          const data = await response.json();
-          if (response.status == 200) {
-            return data;
-          } else if (data.error) {
-            console.log(data.error);
-            alert(data.error);
-            return null;
-          } else {
-            throw new Error('Unexpected server error occured');
-          }
-        } catch (err) {
-          console.error(err);
-        }
+        return oKamban.api.sendRequest(`${oKamban.api.base_url}/list`, "POST", newList);
       },
       /** 
        * @method updateListToAPI Update a List to API
        * @param {any} list A List Object for sending to API
        */
       async updateListToAPI(list) {
-        try {
-          const response = await fetch(`${oKamban.api.base_url}/list/${list.id}`, {
-            headers: {
-              'Authorization': 'Bearer token',
-              'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            method: "PATCH",
-            body: oKamban.api.asUrlFormEncoded(list)
-          });
-          const data = await response.json();
-          if (response.status == 200) {
-            return data;
-          } else if (data.error) {
-            console.log(data.error);
-            alert(data.error);
-            return null;
-          } else {
-            throw new Error('Unexpected server error occured');
-          }
-        } catch (err) {
-          console.error(err);
-        }
+        return oKamban.api.sendRequest(`${oKamban.api.base_url}/list/${list.id}`, "PATCH", list);
       }
     },
     card: {
@@ -112,21 +56,7 @@ const oKamban = {
        * @returns {Promise} Array of Card Object from API
        */
       async getCardsFromAPI() {
-        try {
-          const response = await fetch(`${oKamban.api.base_url}/card`);
-          const data = await response.json();
-          if (response.status == 200) {
-            return data;
-          } else if (data.error) {
-            console.log(data.error);
-            alert(data.error);
-            return null;
-          } else {
-            throw new Error('Unexpected server error occured');
-          }
-        } catch (err) {
-          console.error(err);
-        }
+        return oKamban.api.sendRequest(`${oKamban.api.base_url}/card`, "GET", null);
       },
 
       /** 
@@ -135,28 +65,7 @@ const oKamban = {
        * @returns {Promise} A Card Object from API with id
        */
       async postNewCardToAPI(newCard) {
-        try {
-          const response = await fetch(`${oKamban.api.base_url}/card`, {
-            headers: {
-              'Authorization': 'Bearer token',
-              'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            method: "POST",
-            body: oKamban.api.asUrlFormEncoded(newCard)
-          });
-          const data = await response.json();
-          if (response.status == 200) {
-            return data;
-          } else if (data.error) {
-            console.log(data.error);
-            alert(data.error);
-            return null;
-          } else {
-            throw new Error('Unexpected server error occured');
-          }
-        } catch (err) {
-          console.error(err);
-        }
+        return oKamban.api.sendRequest(`${oKamban.api.base_url}/card`, "PUT", newCard);
       },
 
       /** 
@@ -164,55 +73,50 @@ const oKamban = {
        * @param {String} cardId Target Card cardId to delete
        */
       async deleteCardById(cardId) {
-        try {
-          const response = await fetch(`${oKamban.api.base_url}/card/${cardId}`, {
-            headers: {
-              'Authorization': 'Bearer token',
-              'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            method: "DELETE"
-          });
-          const data = await response.json();
-          if (response.status == 200) {
-            return data;
-          } else if (data.error) {
-            console.log(data.error);
-            alert(data.error);
-            return null;
-          } else {
-            throw new Error('Unexpected server error occured');
-          }
-        } catch (err) {
-          console.error(err);
-        }
+        return oKamban.api.sendRequest(`${oKamban.api.base_url}/card/${cardId}`, "DELETE", null);
       },
       /** 
        * @method updateCardToAPI Update a card to API
        * @param {any} card A card Object for sending to API
        */
       async updateCardToAPI(card) {
-        try {
-          const response = await fetch(`${oKamban.api.base_url}/card/${card.id}`, {
-            headers: {
-              'Authorization': 'Bearer token',
-              'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            method: "PATCH",
-            body: oKamban.api.asUrlFormEncoded(card)
-          });
-          const data = await response.json();
-          if (response.status == 200) {
-            return data;
-          } else if (data.error) {
-            console.log(data.error);
-            alert(data.error);
-            return null;
-          } else {
-            throw new Error('Unexpected server error occured');
-          }
-        } catch (err) {
-          console.error(err);
+        return oKamban.api.sendRequest(`${oKamban.api.base_url}/card/${cardId}`, "PATCH", card);
+      }
+    },
+
+    /** 
+     * @method sendRequest Prepare and Send request with fetch
+     * @param {String} uri Complet REQUEST URI
+     * @param {String} method HTML method ['GET','PUT','PATCH','POST','DELETE']
+     * @param {all} bodyObj An object to transform to URL FORM ENCODED FORMAT
+     * @returns {String} String represent object data as URL FORM ENCODED
+     */
+    async sendRequest(uri, method, bodyObj) {
+      try {
+        let responseOptions = {
+          headers: {
+            'Authorization': 'Bearer token',
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          method: method
+        };
+        if (bodyObj) {
+          responseOptions.body = oKamban.api.asUrlFormEncoded(bodyObj);
         }
+        const response = await fetch(uri, responseOptions);
+        const data = await response.json();
+        if (response.status == 200) {
+          return data;
+        } else if (data.error) {
+          console.log(data.error);
+          alert(data.error);
+          return null;
+        } else {
+          throw new Error('Unexpected server error occured');
+        }
+      } catch (err) {
+        console.error(err);
+        alert(`Erreur d'API`);
       }
     },
 
@@ -477,7 +381,6 @@ const oKamban = {
         }
         card.remove();
       }
-
     },
 
     /**

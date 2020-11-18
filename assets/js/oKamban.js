@@ -482,8 +482,13 @@ const oKanban = {
         const editCardBt = cardFragment.querySelector('.fa-pencil-alt').closest('a');
         editCardBt.addEventListener('click', oKanban.handleEvent.clickEditCardOnList());
 
-        const cardeTitleFormElmt = cardFragment.querySelector('form');
-        cardeTitleFormElmt.addEventListener('submit', oKanban.handleEvent.submitCardUpdateForm(list.id, card.id));
+        const cardFormElmt = cardFragment.querySelector('form');
+        cardFormElmt.addEventListener('submit', oKanban.handleEvent.submitCardUpdateForm(list.id, card.id));
+
+        cardFormElmt.querySelector('input[type="hidden"][name="id"]').value = card.id;
+        cardFormElmt.querySelector('input[type="hidden"][name="position"]').value = card.position;
+        cardFormElmt.querySelector('input[type="hidden"][name="color"]').value = card.color;
+        cardFormElmt.querySelector('input[type="hidden"][name="list_id"]').value = card.list_id;
 
         const deleteCardBt = cardFragment.querySelector('.fa-trash-alt').closest('a');
         deleteCardBt.addEventListener('click', oKanban.handleEvent.clickDeleteCardOnList(list.id, card.id));

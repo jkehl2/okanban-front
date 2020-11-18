@@ -1,15 +1,15 @@
 /**
- * @module oKamban oKamban application module
+ * @module oKanban oKanban application module
  * @version 1.0.0
  * @author jkehl
  */
-const oKamban = {
+const oKanban = {
   /**
-   * @method init Initialize oKamban application 
+   * @method init Initialize oKanban application 
    */
   init() {
-    oKamban.initListener();
-    oKamban.refreshOkamban();
+    oKanban.initListener();
+    oKanban.refreshOkanban();
   },
 
   elements: {
@@ -31,7 +31,7 @@ const oKamban = {
        * @returns {Promise} Array of List Object from API
        */
       getListsFromAPI() {
-        return oKamban.api.sendRequest(`${oKamban.api.base_url}/list`, "GET", null);
+        return oKanban.api.sendRequest(`${oKanban.api.base_url}/list`, "GET", null);
       },
 
       /** 
@@ -40,7 +40,7 @@ const oKamban = {
        * @returns {Promise} A List Object from API with id
        */
       async postNewListToAPI(newList) {
-        return oKamban.api.sendRequest(`${oKamban.api.base_url}/list`, "POST", newList);
+        return oKanban.api.sendRequest(`${oKanban.api.base_url}/list`, "POST", newList);
       },
 
       /** 
@@ -48,7 +48,7 @@ const oKamban = {
        * @param {any} list A List Object for sending to API
        */
       async updateListToAPI(list) {
-        return oKamban.api.sendRequest(`${oKamban.api.base_url}/list/${list.id}`, "PATCH", list);
+        return oKanban.api.sendRequest(`${oKanban.api.base_url}/list/${list.id}`, "PATCH", list);
       }
     },
     card: {
@@ -57,7 +57,7 @@ const oKamban = {
        * @returns {Promise} Array of Card Object from API
        */
       async getCardsFromAPI() {
-        return oKamban.api.sendRequest(`${oKamban.api.base_url}/card`, "GET", null);
+        return oKanban.api.sendRequest(`${oKanban.api.base_url}/card`, "GET", null);
       },
 
       /** 
@@ -66,7 +66,7 @@ const oKamban = {
        * @returns {Promise} A Card Object from API with id
        */
       async postcardFragmentToAPI(cardFragment) {
-        return oKamban.api.sendRequest(`${oKamban.api.base_url}/card`, "POST", cardFragment);
+        return oKanban.api.sendRequest(`${oKanban.api.base_url}/card`, "POST", cardFragment);
       },
 
       /** 
@@ -74,7 +74,7 @@ const oKamban = {
        * @param {String} cardId Target Card cardId to delete
        */
       async deleteCardById(cardId) {
-        return oKamban.api.sendRequest(`${oKamban.api.base_url}/card/${cardId}`, "DELETE", null);
+        return oKanban.api.sendRequest(`${oKanban.api.base_url}/card/${cardId}`, "DELETE", null);
       },
 
       /** 
@@ -82,7 +82,7 @@ const oKamban = {
        * @param {any} card A card Object for sending to API
        */
       async updateCardToAPI(card) {
-        return oKamban.api.sendRequest(`${oKamban.api.base_url}/card/${card.id}`, "PATCH", card);
+        return oKanban.api.sendRequest(`${oKanban.api.base_url}/card/${card.id}`, "PATCH", card);
       }
     },
 
@@ -103,7 +103,7 @@ const oKamban = {
           method: method
         };
         if (bodyObj) {
-          responseOptions.body = oKamban.api.asUrlFormEncoded(bodyObj);
+          responseOptions.body = oKanban.api.asUrlFormEncoded(bodyObj);
         }
         const response = await fetch(uri, responseOptions);
         const data = await response.json();
@@ -173,7 +173,7 @@ const oKamban = {
      */
     clickToggleIsActiveHTMLElement(htmlElmt) {
       return (_) => {
-        oKamban.handleEvent.tools.toggleIsActiveHTMLElement(htmlElmt);
+        oKanban.handleEvent.tools.toggleIsActiveHTMLElement(htmlElmt);
       };
     },
 
@@ -182,9 +182,9 @@ const oKamban = {
      * @param {Event} event - Submit event on AddListModal Form
      */
     submitAddListForm(event) {
-      var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
-      oKamban.domUpdates.fromUserAction.createList(formData);
-      oKamban.handleEvent.tools.toggleIsActiveHTMLElement(oKamban.elements.addListModal);
+      var formData = oKanban.handleEvent.tools.getDataFormFrmFormSubmit(event);
+      oKanban.domUpdates.fromUserAction.createList(formData);
+      oKanban.handleEvent.tools.toggleIsActiveHTMLElement(oKanban.elements.addListModal);
     },
 
     /**
@@ -192,9 +192,9 @@ const oKamban = {
      * @param {Event} event - Submit event on AddListModal Form
      */
     submitAddCardForm(event) {
-      var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
-      oKamban.domUpdates.fromUserAction.createCard(formData);
-      oKamban.handleEvent.tools.toggleIsActiveHTMLElement(oKamban.elements.addCardModal);
+      var formData = oKanban.handleEvent.tools.getDataFormFrmFormSubmit(event);
+      oKanban.domUpdates.fromUserAction.createCard(formData);
+      oKanban.handleEvent.tools.toggleIsActiveHTMLElement(oKanban.elements.addCardModal);
     },
 
     /**
@@ -206,7 +206,7 @@ const oKamban = {
       return (_) => {
         const addCardModal = document.getElementById('addCardModal');
         addCardModal.querySelector('#formCardList_id').value = listId;
-        oKamban.handleEvent.tools.toggleIsActiveHTMLElement(oKamban.elements.addCardModal);
+        oKanban.handleEvent.tools.toggleIsActiveHTMLElement(oKanban.elements.addCardModal);
       }
     },
 
@@ -218,7 +218,7 @@ const oKamban = {
      */
     clickDeleteCardOnList(listId, cardId) {
       return (_) => {
-        oKamban.domUpdates.fromUserAction.deleteCard(listId, cardId);
+        oKanban.domUpdates.fromUserAction.deleteCard(listId, cardId);
       }
     },
 
@@ -233,11 +233,11 @@ const oKamban = {
         const cardElmt = event.target.closest('div[card-id]');
 
         const cardNameElmt = cardElmt.querySelector('.columns').querySelectorAll('.column')[0];
-        oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(cardNameElmt);
+        oKanban.handleEvent.tools.toggleIsHiddenHTMLElement(cardNameElmt);
 
         const cardNameFormElmt = cardElmt.querySelector('form');
         cardNameFormElmt.querySelector('input[type="text"]').value = cardNameElmt.textContent;
-        oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(cardNameFormElmt);
+        oKanban.handleEvent.tools.toggleIsHiddenHTMLElement(cardNameFormElmt);
       }
     },
 
@@ -249,16 +249,16 @@ const oKamban = {
      */
     submitCardUpdateForm(listId, cardId) {
       return async (event) => {
-        var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
-        oKamban.domUpdates.fromUserAction.updateCard(formData, listId, cardId);
+        var formData = oKanban.handleEvent.tools.getDataFormFrmFormSubmit(event);
+        oKanban.domUpdates.fromUserAction.updateCard(formData, listId, cardId);
 
         const cardElmt = event.target.closest('div[card-id]');
 
         const cardNameElmt = cardElmt.querySelector('.columns').querySelectorAll('.column')[0];
-        oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(cardNameElmt);
+        oKanban.handleEvent.tools.toggleIsHiddenHTMLElement(cardNameElmt);
 
         const cardNameFormElmt = cardElmt.querySelector('form');
-        oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(cardNameFormElmt);
+        oKanban.handleEvent.tools.toggleIsHiddenHTMLElement(cardNameFormElmt);
       };
     },
 
@@ -269,13 +269,13 @@ const oKamban = {
      */
     dblClickOnListTitle(listId) {
       return (_) => {
-        const target_list = oKamban.domUpdates.tools.queryListElmtById(listId);
+        const target_list = oKanban.domUpdates.tools.queryListElmtById(listId);
         const listTitleElmt = target_list.querySelector('h2');
-        oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(listTitleElmt);
+        oKanban.handleEvent.tools.toggleIsHiddenHTMLElement(listTitleElmt);
 
         const listTitleFormElmt = target_list.querySelector('form');
         listTitleFormElmt.querySelector('input[type="text"]').value = listTitleElmt.textContent;
-        oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(listTitleFormElmt);
+        oKanban.handleEvent.tools.toggleIsHiddenHTMLElement(listTitleFormElmt);
       }
     },
 
@@ -286,13 +286,13 @@ const oKamban = {
      */
     submitUpdateListForm(listId) {
       return async (event) => {
-        var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
+        var formData = oKanban.handleEvent.tools.getDataFormFrmFormSubmit(event);
 
-        oKamban.domUpdates.fromUserAction.updateList(formData, listId);
+        oKanban.domUpdates.fromUserAction.updateList(formData, listId);
 
-        const target_list = oKamban.domUpdates.tools.queryListElmtById(listId);
-        oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(target_list.querySelector('form'));
-        oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(target_list.querySelector('h2'));
+        const target_list = oKanban.domUpdates.tools.queryListElmtById(listId);
+        oKanban.handleEvent.tools.toggleIsHiddenHTMLElement(target_list.querySelector('form'));
+        oKanban.handleEvent.tools.toggleIsHiddenHTMLElement(target_list.querySelector('h2'));
       }
     }
 
@@ -326,13 +326,13 @@ const oKamban = {
       async createList(formData) {
         let newList = {
           name: formData.get('formListName'),
-          position: oKamban.data.length
+          position: oKanban.data.length
         };
-        newList = await oKamban.api.list.postNewListToAPI(newList);
+        newList = await oKanban.api.list.postNewListToAPI(newList);
         newList.cards = [];
         if (newList) {
-          oKamban.data.push(newList);
-          oKamban.domUpdates.makeListInDOM(newList);
+          oKanban.data.push(newList);
+          oKanban.domUpdates.makeListInDOM(newList);
         }
       },
 
@@ -342,16 +342,16 @@ const oKamban = {
        * @param {String} listId - target List listId
        */
       async updateList(formData, listId) {
-        const list = oKamban.data.find((list) => {
+        const list = oKanban.data.find((list) => {
           return list.id == listId;
         });
         list.name = formData.get("list-name");
-        const response = await oKamban.api.list.updateListToAPI(list);
+        const response = await oKanban.api.list.updateListToAPI(list);
 
         if (response) {
-          oKamban.domUpdates.updateListInDom(list);
+          oKanban.domUpdates.updateListInDom(list);
         } else {
-          const target_list = oKamban.domUpdates.tools.queryListElmtById(listId);
+          const target_list = oKanban.domUpdates.tools.queryListElmtById(listId);
           list.name = listTitleElmt.textContent;
         }
       },
@@ -361,7 +361,7 @@ const oKamban = {
        * @param {FormData} formData
        */
       async createCard(formData) {
-        let parentList = oKamban.data.find((list) => {
+        let parentList = oKanban.data.find((list) => {
           return list.id == formData.get('formCardList_id')
         });
         let newCard = {
@@ -370,10 +370,10 @@ const oKamban = {
           // color : formData.get('formCardColor'),
           list_id: parentList.id
         }
-        newCard = await oKamban.api.card.postcardFragmentToAPI(newCard);
+        newCard = await oKanban.api.card.postcardFragmentToAPI(newCard);
         if (newCard) {
           parentList.cards.push(newCard);
-          oKamban.domUpdates.makeCardInDom(parentList, newCard);
+          oKanban.domUpdates.makeCardInDom(parentList, newCard);
         }
       },
 
@@ -384,7 +384,7 @@ const oKamban = {
        * @param {String} cardId - target Card cardId
        */
       async updateCard(formData, listId, cardId) {
-        const list = oKamban.data.find((list) => {
+        const list = oKanban.data.find((list) => {
           return list.id == listId;
         });
 
@@ -396,11 +396,11 @@ const oKamban = {
         // card.position = formData.get('carte-position');
         // card.color = formData.get('carte-color');
 
-        response = await oKamban.api.card.updateCardToAPI(card);
+        response = await oKanban.api.card.updateCardToAPI(card);
         if (response) {
-          oKamban.domUpdates.updateCardInDom(card);
+          oKanban.domUpdates.updateCardInDom(card);
         } else {
-          const target_card = oKamban.domUpdates.tools.queryCardElmtById(cardId);
+          const target_card = oKanban.domUpdates.tools.queryCardElmtById(cardId);
           card.title = target_card.querySelector('.columns').querySelectorAll('.column')[0].textContent;
           card.color = target_card.style.background;
         }
@@ -412,16 +412,16 @@ const oKamban = {
        * @param {String} cardId - target Card cardId
        */
       async deleteCard(listId, cardId) {
-        const list = oKamban.data.find((list) => {
+        const list = oKanban.data.find((list) => {
           return list.id == listId;
         });
 
         const card = list.cards.find((card) => {
           return card.id == cardId;
         })
-        const response = await oKamban.api.card.deleteCardById(cardId);
+        const response = await oKanban.api.card.deleteCardById(cardId);
         if (response) {
-          oKamban.domUpdates.deleteCardInDOM(card);
+          oKanban.domUpdates.deleteCardInDOM(card);
           list.cards = list.cards.filter((card) => {
             return card.id != cardId;
           });
@@ -435,17 +435,17 @@ const oKamban = {
      */
     makeListInDOM(list) {
       if ("content" in document.createElement('template')) {
-        const fragmentList = document.importNode(oKamban.elements.templateList.content, true);
+        const fragmentList = document.importNode(oKanban.elements.templateList.content, true);
         fragmentList.querySelector('div[list-id]').setAttribute('list-id', list.id);
 
         const listTitleElmt = fragmentList.querySelector('h2');
         listTitleElmt.textContent = list.name;
-        listTitleElmt.addEventListener('dblclick', oKamban.handleEvent.dblClickOnListTitle(list.id));
+        listTitleElmt.addEventListener('dblclick', oKanban.handleEvent.dblClickOnListTitle(list.id));
 
         const addCardBt = fragmentList.querySelector('.fa-plus').closest('a');
-        addCardBt.addEventListener('click', oKamban.handleEvent.clickAddCardModal(list.id));
+        addCardBt.addEventListener('click', oKanban.handleEvent.clickAddCardModal(list.id));
 
-        oKamban.elements.containerList.appendChild(fragmentList);
+        oKanban.elements.containerList.appendChild(fragmentList);
       }
     },
 
@@ -454,7 +454,7 @@ const oKamban = {
      * @param {all} list List object
      */
     async updateListInDom(list) {
-      const target_list = oKamban.domUpdates.tools.queryListElmtById(list.id);
+      const target_list = oKanban.domUpdates.tools.queryListElmtById(list.id);
       const listTitleElmt = target_list.querySelector('h2');
       listTitleElmt.textContent = list.name;
     },
@@ -466,22 +466,22 @@ const oKamban = {
      */
     async makeCardInDom(list, card) {
       if ("content" in document.createElement('template')) {
-        const target_list = oKamban.domUpdates.tools.queryListElmtById(list.id);
+        const target_list = oKanban.domUpdates.tools.queryListElmtById(list.id);
         const card_container = target_list.querySelector('.panel-block');
-        const cardFragment = document.importNode(oKamban.elements.templateCard.content, true);
+        const cardFragment = document.importNode(oKanban.elements.templateCard.content, true);
 
         cardFragment.querySelector('.columns').querySelectorAll('.column')[0].textContent = card.title;
         cardFragment.querySelector('div[card-id]').setAttribute('card-id', card.id);
         cardFragment.querySelector('div[card-id]').style.background = card.color;
 
         const editCardBt = cardFragment.querySelector('.fa-pencil-alt').closest('a');
-        editCardBt.addEventListener('click', oKamban.handleEvent.clickEditCardOnList());
+        editCardBt.addEventListener('click', oKanban.handleEvent.clickEditCardOnList());
 
         const cardeTitleFormElmt = cardFragment.querySelector('form');
-        cardeTitleFormElmt.addEventListener('submit', oKamban.handleEvent.submitCardUpdateForm(list.id, card.id));
+        cardeTitleFormElmt.addEventListener('submit', oKanban.handleEvent.submitCardUpdateForm(list.id, card.id));
 
         const deleteCardBt = cardFragment.querySelector('.fa-trash-alt').closest('a');
-        deleteCardBt.addEventListener('click', oKamban.handleEvent.clickDeleteCardOnList(list.id, card.id));
+        deleteCardBt.addEventListener('click', oKanban.handleEvent.clickDeleteCardOnList(list.id, card.id));
 
         card_container.appendChild(cardFragment);
       }
@@ -492,7 +492,7 @@ const oKamban = {
      * @param {all} card card object
      */
     async updateCardInDom(card) {
-      const target_card = oKamban.domUpdates.tools.queryCardElmtById(card.id);
+      const target_card = oKanban.domUpdates.tools.queryCardElmtById(card.id);
       target_card.querySelector('.columns').querySelectorAll('.column')[0].textContent = card.title;
       target_card.style.background = card.color;
     },
@@ -502,7 +502,7 @@ const oKamban = {
      * @param {all} card card object
      */
     async deleteCardInDOM(card) {
-      const target_card = oKamban.domUpdates.tools.queryCardElmtById(card.id);
+      const target_card = oKanban.domUpdates.tools.queryCardElmtById(card.id);
       target_card.remove();
     },
 
@@ -515,8 +515,8 @@ const oKamban = {
         lists.sort((apiListObj1, apiListObj2) => {
           return apiListObj1.position < apiListObj2.position ? -1 : (apiListObj1.position > apiListObj2.position ? 1 : 0);
         }).forEach((apiListObj) => {
-          oKamban.domUpdates.makeListInDOM(apiListObj);
-          oKamban.domUpdates.makeAllCardsFromApiInList(apiListObj);
+          oKanban.domUpdates.makeListInDOM(apiListObj);
+          oKanban.domUpdates.makeAllCardsFromApiInList(apiListObj);
         });
       }
     },
@@ -530,46 +530,46 @@ const oKamban = {
         list.cards.sort((apiCardObj1, apiCardObj2) => {
           return apiCardObj1.position < apiCardObj2.position ? -1 : (apiCardObj1.position > apiCardObj2.position ? 1 : 0);
         }).forEach((apiCardObj) => {
-          oKamban.domUpdates.makeCardInDom(list, apiCardObj);
+          oKanban.domUpdates.makeCardInDom(list, apiCardObj);
         });
       }
     },
   },
 
   /**
-   * @method initListener Refresh All oKamban listeners
+   * @method initListener Refresh All oKanban listeners
    */
   initListener() {
     // Submit Event Listener on "AddListModal" Form
-    oKamban.elements.addListModalForm.addEventListener('submit', oKamban.handleEvent.submitAddListForm);
+    oKanban.elements.addListModalForm.addEventListener('submit', oKanban.handleEvent.submitAddListForm);
     // Click Event Listener on "add list" Button
-    oKamban.elements.addListModalAddButton.addEventListener('click', oKamban.handleEvent.clickToggleIsActiveHTMLElement(oKamban.elements.addListModal));
+    oKanban.elements.addListModalAddButton.addEventListener('click', oKanban.handleEvent.clickToggleIsActiveHTMLElement(oKanban.elements.addListModal));
     // Click Event Listener on all close Button for "AddListModal"
     let closeBts = document.getElementById('addListModal').querySelectorAll('.close');
     closeBts.forEach((buttonClose) => {
-      buttonClose.addEventListener('click', oKamban.handleEvent.clickToggleIsActiveHTMLElement(oKamban.elements.addListModal));
+      buttonClose.addEventListener('click', oKanban.handleEvent.clickToggleIsActiveHTMLElement(oKanban.elements.addListModal));
     });
 
 
     // Submit Event Listener on "AddCardModal" Form
-    oKamban.elements.addCardModalForm.addEventListener('submit', oKamban.handleEvent.submitAddCardForm);
+    oKanban.elements.addCardModalForm.addEventListener('submit', oKanban.handleEvent.submitAddCardForm);
     // Click Event Listener on all close Button for "AddCardModal"
     closeBts = document.getElementById('addCardModal').querySelectorAll('.close');
     closeBts.forEach((buttonClose) => {
-      buttonClose.addEventListener('click', oKamban.handleEvent.clickToggleIsActiveHTMLElement(oKamban.elements.addCardModal));
+      buttonClose.addEventListener('click', oKanban.handleEvent.clickToggleIsActiveHTMLElement(oKanban.elements.addCardModal));
     });
   },
 
   /**
-   * @method refreshOkamban Refresh All oKamban lists and cards from API
+   * @method refreshOkanban Refresh All oKanban lists and cards from API
    */
-  async refreshOkamban() {
-    oKamban.data = await oKamban.api.list.getListsFromAPI();
-    if (oKamban.data) {
-      oKamban.domUpdates.makeAllListWithCardsFromApi(oKamban.data);
+  async refreshOkanban() {
+    oKanban.data = await oKanban.api.list.getListsFromAPI();
+    if (oKanban.data) {
+      oKanban.domUpdates.makeAllListWithCardsFromApi(oKanban.data);
     }
   }
 };
 
-// Start oKamban application on DOM Content Loaded Event
-document.addEventListener('DOMContentLoaded', oKamban.init);
+// Start oKanban application on DOM Content Loaded Event
+document.addEventListener('DOMContentLoaded', oKanban.init);

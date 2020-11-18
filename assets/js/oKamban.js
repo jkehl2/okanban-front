@@ -114,11 +114,11 @@ const oKamban = {
           alert(data.error);
           return null;
         } else {
-          throw new Error('Unexpected server error occured');
+          throw new Error('An unexpected server error occured');
         }
       } catch (err) {
         console.error(err);
-        alert(`Erreur d'API`);
+        alert(`An unexpected error occured`);
       }
     },
 
@@ -183,7 +183,7 @@ const oKamban = {
      */
     submitAddListForm(event) {
       var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
-      oKamban.domUpdates.fromFormData.createList(formData);
+      oKamban.domUpdates.fromUserAction.createList(formData);
       oKamban.handleEvent.tools.toggleIsActiveHTMLElement(oKamban.elements.addListModal);
     },
 
@@ -193,7 +193,7 @@ const oKamban = {
      */
     submitAddCardForm(event) {
       var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
-      oKamban.domUpdates.fromFormData.createCard(formData);
+      oKamban.domUpdates.fromUserAction.createCard(formData);
       oKamban.handleEvent.tools.toggleIsActiveHTMLElement(oKamban.elements.addCardModal);
     },
 
@@ -218,7 +218,7 @@ const oKamban = {
      */
     clickDeleteCardOnList(listId, cardId) {
       return (_) => {
-        oKamban.domUpdates.fromFormData.deleteCard(listId, cardId);
+        oKamban.domUpdates.fromUserAction.deleteCard(listId, cardId);
       }
     },
 
@@ -250,7 +250,7 @@ const oKamban = {
     submitCardUpdateForm(listId, cardId) {
       return async (event) => {
         var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
-        oKamban.domUpdates.fromFormData.updateCard(formData, listId, cardId);
+        oKamban.domUpdates.fromUserAction.updateCard(formData, listId, cardId);
 
         const cardElmt = event.target.closest('div[card-id]');
 
@@ -288,7 +288,7 @@ const oKamban = {
       return async (event) => {
         var formData = oKamban.handleEvent.tools.getDataFormFrmFormSubmit(event);
 
-        oKamban.domUpdates.fromFormData.updateList(formData, listId);
+        oKamban.domUpdates.fromUserAction.updateList(formData, listId);
 
         const target_list = oKamban.domUpdates.tools.queryListElmtById(listId);
         oKamban.handleEvent.tools.toggleIsHiddenHTMLElement(target_list.querySelector('form'));
@@ -318,8 +318,7 @@ const oKamban = {
         return document.querySelector(`div[card-id="${cardId}"]`)
       }
     },
-    fromFormData: {
-
+    fromUserAction: {
       /**
        * @method createList Create list from FormData
        * @param {FormData} formData

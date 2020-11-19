@@ -141,7 +141,7 @@
     </div>
 
     <template id="template_list">
-        <div class="column is-one-quarter panel" list-id="">
+        <div class="column is-one-quarter panel" style="min-width:min-content;" list-id="">
             <div class="panel-heading has-background-info">
                 <nav class="level is-mobile">
                     <div class="level-left">
@@ -205,11 +205,13 @@
     </template>
 
     <template id="template_card">
-        <div class="box" card-id="">
+        <div class="box" style="min-width:min-content;" card-id="">
             <article class="media">
                 <div class="media-content">
                     <nav class="level is-mobile is-hidden">
-                        <div class="level-left tags-container"></div>
+                        <div
+                            class="level-left is-flex is-flex-direction-row is-align-content-flex-start tags-container">
+                        </div>
                     </nav>
                     <div class="content">
                         <p></p>

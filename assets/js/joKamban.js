@@ -1020,6 +1020,7 @@ const joKanban = {
         cardElmt.addEventListener('drop', (event) => {
           event.preventDefault();
           if (joKanban.draggedElmt.hasAttribute("tag-id")) {
+            cardElmt.style.border = 'none';
             joKanban.domUpdates.fromUserAction.associateTagToCard(joKanban.draggedElmt.getAttribute("tag-id"), card.id, list.id);
           }
           if (joKanban.draggedElmt.hasAttribute("card-id")) {

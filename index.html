@@ -182,7 +182,6 @@
         <li>
             <nav class="level is-mobile">
                 <div class="level-left" style="flex-grow:1;">
-                    <!-- <button class="button is-rounded is-small" tag-id="" style="width:100%;"></button> -->
                     <a class="level-item button is-rounded is-small" tag-id="" style="width:100%;"></a>
                 </div>
                 <div class="level-right">
@@ -202,18 +201,15 @@
     </template>
 
     <template id="template_tagCard">
-        <a class="level-item button is-rounded is-small"></a>
+        <a class="level-item button is-rounded is-small" tagcard-id=""></a>
     </template>
 
     <template id="template_card">
         <div class="box" card-id="">
             <article class="media">
                 <div class="media-content">
-                    <nav class="level is-mobile">
-                        <div class="level-left">
-                            
-                            
-                        </div>
+                    <nav class="level is-mobile is-hidden">
+                        <div class="level-left tags-container"></div>
                     </nav>
                     <div class="content">
                         <p></p>
@@ -234,7 +230,8 @@
                         </form>
                     </div>
                     <nav class="level is-mobile">
-                        <div class="level-left">
+                        <div class="level-left"></div>
+                        <div class="level-right">
                             <a class="level-item" aria-label="pencil-alt">
                                 <span class="icon is-small has-text-primary">
                                     <i class="fas fa-pencil-alt"></i>

@@ -190,11 +190,11 @@ const joKanban = {
       },
 
       /** 
-       * @method dissociateTagToCardByIds dissociate a Tag to a Card in DB By theirs Id
+       * @method dissociateTagOfCardByIds dissociate a Tag of a Card in DB By theirs Id
        * @param {String} tagId Target Tag tagId to dissociate
        * @param {String} cardId Target Card cardId to dissociate
        */
-      async dissociateTagToCardByIds(tagId, cardId) {
+      async dissociateTagOfCardByIds(tagId, cardId) {
         return joKanban.api.sendRequest(`${joKanban.api.base_url}/card/${cardId}/tag/${tagId}`, "DELETE", null);
       }
     },
@@ -363,6 +363,22 @@ const joKanban = {
     },
 
     /**
+     * @method clickEditTagBt Handle DblClick event on Tag In Card
+     * @param {String} tagId - Target Tag tagId
+     * @param {String} cardId - target Card cardId
+     * @param {String} listId - Target List listId
+     * @return {CallableFunction} a callable function to Handle DblClick event on Tag In Card
+     */
+    dblClickOnTagCard(tagId, cardId, listId) {
+      return () => {
+        const isConfrim = confirm(`Etes vous certain de vouloir supprimer ce Tag de cette carte ?`);
+        if (isConfrim) {
+          joKanban.domUpdates.fromUserAction.dissociateTagOfCard(tagId, cardId, listId);
+        }
+      }
+    },
+
+    /**
      * @method clickDeleteTagBt Handle click event on deleteCard button
      * @param {String} tagId - Target Tag tagId
      * @return {CallableFunction} a callable function to Handle click event on deleteCard button 
@@ -521,7 +537,7 @@ const joKanban = {
     tools: {
       /**
        * @method queryListElmtById Get a List HTML Element by listId
-       * @param {String} listId
+       * @param {String} listId Target List listId
        * @returns {HTMLElement} List HTML Element with list-id attribut equal to listId param
        */
       queryListElmtById(listId) {
@@ -530,7 +546,7 @@ const joKanban = {
 
       /**
        * @method queryCardElmtById Get a Card HTML Element by cardId
-       * @param {String} cardId
+       * @param {String} cardId Target Card cardId
        * @returns {HTMLElement} Card HTML Element with card-id attribut equal to cardId param
        */
       queryCardElmtById(cardId) {
@@ -539,11 +555,21 @@ const joKanban = {
 
       /**
        * @method queryTagElmtInMenuById Get a Tag HTML Element by tagId In Menu
-       * @param {String} tagId
+       * @param {String} tagId Target Tag tagId
        * @returns {HTMLElement} Tag HTML Element with tag-id attribut equal to tagId param
        */
       queryTagElmtInMenuById(tagId) {
         return joKanban.elements.containerTagMenu.querySelector(`a[tag-id="${tagId}"]`).closest('li');
+      },
+
+      /**
+       * @method queryTagElmtInCardById Get a Tag HTML Element From a Card by Ids
+       * @param {String} cardId Target Card cardId
+       * @param {String} tagId Target Tag tagId
+       * @returns {HTMLElement} Tag HTML Element with tag-id attribut equal to tagId param
+       */
+      queryTagElmtInCardById(cardId, tagId) {
+        return joKanban.domUpdates.tools.queryCardElmtById(cardId).querySelector(`a[tagcard-id="${tagId}"]`);
       }
     },
     fromUserAction: {
@@ -611,6 +637,7 @@ const joKanban = {
           list_id: formData.get('list_id')
         }
         newCard = await joKanban.api.card.postCardToAPI(newCard);
+        newCard.tags = []
         if (newCard) {
           parentList.cards.push(newCard);
           joKanban.domUpdates.makeCardInDom(parentList, newCard);
@@ -706,6 +733,40 @@ const joKanban = {
           joKanban.domUpdates.deleteTagInDOM(tag);
         }
       },
+
+      /**
+       * @method associateTagToCard Associate a Tag To a card from user action
+       * @param {String} tagId - target Tag tagId
+       * @param {String} cardId - target Card cardId
+       * @param {String} listId - target List listId
+       */
+      async associateTagToCard(tagId, cardId, listId) {
+        const tag = joKanban.getDataTagById(tagId);
+        const [list, card] = joKanban.getDataListNdCardById(listId, cardId);
+        const response = await joKanban.api.tag.associateTagToCardByIds(tagId, cardId);
+        if (response) {
+          card.tags.push(tag);
+          joKanban.domUpdates.associateTagToCardInDOM(tag, card, list);
+        }
+      },
+
+      /**
+       * @method dissociateTagOfCard Dissociate a Tag Of a card from user action
+       * @param {String} tagId - target Tag tagId
+       * @param {String} cardId - target Card cardId
+       * @param {String} listId - target List listId
+       */
+      async dissociateTagOfCard(tagId, cardId, listId) {
+        const tag = joKanban.getDataTagById(tagId);
+        const [, card] = joKanban.getDataListNdCardById(listId, cardId);
+        const response = await joKanban.api.tag.dissociateTagOfCardByIds(tagId, cardId);
+        if (response) {
+          card.tags.filter((tag) => {
+            return tag.id != tagId;
+          });
+          joKanban.domUpdates.dissociateTagOfCardInDOM(tag, card);
+        }
+      }
     },
 
     /**
@@ -848,6 +909,7 @@ const joKanban = {
     async updateTagInDom(tag) {
       const target_tag = joKanban.domUpdates.tools.queryTagElmtInMenuById(tag.id);
       const buttonElmt = target_tag.querySelector('a[tag-id]');
+      
       buttonElmt.textContent = tag.name;
       buttonElmt.style.background = tag.color;
     },
@@ -859,6 +921,42 @@ const joKanban = {
     async deleteTagInDOM(tag) {
       const target_tag = joKanban.domUpdates.tools.queryTagElmtInMenuById(tag.id);
       target_tag.remove();
+    },
+
+    /**
+     * @method associateTagToCardInDOM Associate a Tag To a Card in DOM
+     * @param {all} tag Tag object
+     * @param {all} card Card object
+     * @param {all} list List object
+     */
+    async associateTagToCardInDOM(tag, card, list) {
+      if ("content" in document.createElement('template')) {
+        const tagFragment = document.importNode(joKanban.elements.templateTagCard.content, true);
+        const target_card = joKanban.domUpdates.tools.queryCardElmtById(card.id);
+        const containerTagsInCard = target_card.querySelector('.tags-container');
+        const tagElmt = tagFragment.querySelector('a[tagcard-id]');
+        tagElmt.setAttribute('tagcard-id', tag.id);
+        tagElmt.textContent = tag.name;
+        tagElmt.style.background = tag.color;
+        tagElmt.addEventListener('dblclick', joKanban.handleEvent.dblClickOnTagCard(tag.id, card.id, list.id));
+        containerTagsInCard.appendChild(tagFragment);
+        containerTagsInCard.closest('nav').classList.remove('is-hidden');
+      }
+    },
+
+    /**
+     * @method dissociateTagOfCardInDOM Dissociate a Tag of a Card in DOM
+     * @param {all} tag Tag object
+     * @param {all} card Card object
+     */
+    async dissociateTagOfCardInDOM(tag, card) {
+      const target_tag = joKanban.domUpdates.tools.queryTagElmtInCardById(card.id, tag.id);
+      target_tag.remove();
+      if (card.tags.length == 0) {
+        const target_card = joKanban.domUpdates.tools.queryCardElmtById(card.id);
+        const containerTagsInCard = target_card.querySelector('.tags-container');
+        containerTagsInCard.closest('nav').classList.add('is-hidden');
+      }
     },
 
     /**
@@ -885,17 +983,31 @@ const joKanban = {
           return card1.position < card2.position ? -1 : (card1.position > card2.position ? 1 : 0);
         }).forEach((card) => {
           joKanban.domUpdates.makeCardInDom(list, card);
+          joKanban.domUpdates.makeAllTagsInCardFromApi(card, list);
         });
       }
     },
 
     /**
-     * @method makeAllTagsFromApi  Make Tags in DOM from API Response
+     * @method makeAllTagsInMenuFromApi  Make Tags in Menu from API Response
      */
-    makeAllTagsFromApi() {
+    makeAllTagsInMenuFromApi() {
       if ("content" in document.createElement('template')) {
         joKanban.tags.forEach((tag) => {
           joKanban.domUpdates.makeTagInMenu(tag);
+        });
+      }
+    },
+
+    /**
+     * @method makeAllTagsInCardFromApi  Make Tags in Card from API Response
+     * @param {all} card card object
+     * @param {all} list list object
+     */
+    makeAllTagsInCardFromApi(card, list) {
+      if ("content" in document.createElement('template')) {
+        card.tags.forEach((tag) => {
+          joKanban.domUpdates.associateTagToCardInDOM(tag, card, list);
         });
       }
     },
@@ -944,7 +1056,7 @@ const joKanban = {
     }
     joKanban.tags = await joKanban.api.tag.getTagsFromAPI();
     if (joKanban.tags) {
-      joKanban.domUpdates.makeAllTagsFromApi();
+      joKanban.domUpdates.makeAllTagsInMenuFromApi();
     }
   },
 

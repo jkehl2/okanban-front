@@ -97,7 +97,7 @@ const joKanban = {
   },
 
   api: {
-    base_url: 'http://localhost:3000',
+    base_url: 'http://johann-kehl.vpnuser.lan:3000',
     list: {
       /** 
        * @method getListsFromAPI Get all list from DB

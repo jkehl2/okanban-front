@@ -501,6 +501,7 @@ const joKanban = {
         cardNameFormElmt.querySelector('input[type="text"]').value = cardNameElmt.textContent;
         cardNameFormElmt.querySelector('input[type="hidden"][name="id"]').value = cardId;
         cardNameFormElmt.querySelector('input[type="hidden"][name="list_id"]').value = listId;
+        cardElmt.setAttribute('draggable', false);
         joKanban.handleEvent.tools.toggleIsHiddenHTMLElement(cardNameFormElmt);
       }
     },
@@ -517,7 +518,7 @@ const joKanban = {
         joKanban.domUpdates.fromUserAction.updateCard(formData);
 
         const cardElmt = event.target.closest('div[card-id]');
-
+        cardElmt.setAttribute('draggable', true);
         const cardNameElmt = cardElmt.querySelector('.content p');
         joKanban.handleEvent.tools.toggleIsHiddenHTMLElement(cardNameElmt);
 
@@ -534,6 +535,9 @@ const joKanban = {
     dblClickOnListTitle(listId) {
       return (_) => {
         const target_list = joKanban.domUpdates.tools.queryListElmtById(listId);
+
+        const listHeaderElmt = target_list.querySelector('.panel-heading');
+        listHeaderElmt.setAttribute('draggable', false);
         const listTitleElmt = target_list.querySelector('h2');
         joKanban.handleEvent.tools.toggleIsHiddenHTMLElement(listTitleElmt);
         joKanban.handleEvent.tools.toggleIsHiddenHTMLElement(target_list.querySelector('.level-right'));
@@ -552,10 +556,14 @@ const joKanban = {
     submitUpdateListForm(listId) {
       return async (event) => {
         var formData = joKanban.handleEvent.tools.getDataFormFrmFormSubmit(event);
-
+        
         joKanban.domUpdates.fromUserAction.updateList(formData, listId);
 
         const target_list = joKanban.domUpdates.tools.queryListElmtById(listId);
+        
+        const listHeaderElmt = target_list.querySelector('.panel-heading');
+        listHeaderElmt.setAttribute('draggable', true);
+        
         joKanban.handleEvent.tools.toggleIsHiddenHTMLElement(target_list.querySelector('form'));
         joKanban.handleEvent.tools.toggleIsHiddenHTMLElement(target_list.querySelector('h2'));
         joKanban.handleEvent.tools.toggleIsHiddenHTMLElement(target_list.querySelector('.level-right'));

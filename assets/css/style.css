@@ -7,3 +7,21 @@ body {
 .card-lists {
   overflow-x: auto;
 }
+
+.tags-container {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  width: auto;
+}
+
+.tags-container a {
+  display: block !important;
+  margin: 0.25rem !important;
+  width: fit-content !important;
+  font-size: 0.6rem !important;
+  border: 1px solid white !important;
+  box-shadow: none !important;
+}

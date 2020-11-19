@@ -50,7 +50,7 @@
                         </ul>
                     </aside>
                 </div>
-                <div class="column ">
+                <div class="column">
                     <div class="card-lists columns"></div>
                 </div>
             </div>
@@ -143,39 +143,36 @@
     <template id="template_list">
         <div class="column is-one-quarter panel" list-id="">
             <div class="panel-heading has-background-info">
-                <div class="columns">
-                    <div class="column">
+                <nav class="level is-mobile">
+                    <div class="level-left">
                         <h2 class="has-text-white"></h2>
-
                         <form action="" method="POST" class="is-hidden">
                             <div class="field has-addons">
                                 <div class="control">
                                     <input type="text" class="input is-small" name="name" value=""
                                         placeholder="Nom de la liste">
                                 </div>
-                                <input type="hidden" name="id" value="">
-                                <input type="hidden" name="position" value="">
                                 <div class="control">
                                     <button class="button is-small is-success">Valider</button>
                                 </div>
+                                <input type="hidden" name="id" value="">
+                                <input type="hidden" name="position" value="">
                             </div>
                         </form>
                     </div>
-
-                    <div class="column is-narrow">
-                        <a href="#">
-                            <span class="icon is-small has-text-white">
+                    <div class="level-right">
+                        <a class="level-item" aria-label="plus">
+                            <span class="icon is-small has-text-primary">
                                 <i class="fas fa-plus"></i>
                             </span>
                         </a>
-
-                        <a href="#">
+                        <a class="level-item" aria-label="trash-alt">
                             <span class="icon is-small has-text-danger">
                                 <i class="fas fa-trash-alt"></i>
                             </span>
                         </a>
                     </div>
-                </div>
+                </nav>
             </div>
             <div class="panel-block is-block has-background-light"></div>
         </div>
@@ -183,7 +180,7 @@
 
     <template id="template_tag">
         <li>
-            <div class="is-flex is-flex-direction-row is-flex-wrap-nowrap is-justify-content-space-between is-align-content-space-between"
+            <!-- <div class="is-flex is-flex-direction-row is-flex-wrap-nowrap is-justify-content-space-between is-align-content-space-between"
                 style="width: 100%;">
                 <div style="flex-grow: 1;">
                     <button class="button is-rounded is-small" style="width: 100%;" tag-id=""></button>
@@ -201,42 +198,65 @@
                         </span>
                     </a>
                 </div>
-            </div>
-        </li>
-    </template>
-
-    <template id="template_card">
-        <div class="box" card-id="">
-            <div class="columns">
-                <div class="column"></div>
-                <form action="" method="POST" class="is-hidden">
-                    <div class="field has-addons">
-                        <div class="control">
-                            <input type="text" class="input is-small" name="title" value=""
-                                placeholder="Nom de la carte">
-                            <input type="color" class="input is-small" name="color" value="#ffffff">
-                        </div>
-                        <input type="hidden" name="id" value="">
-                        <input type="hidden" name="position" value="">
-                        <input type="hidden" name="list_id" value="">
-                        <div class="control">
-                            <button class="button is-small is-success">Valider</button>
-                        </div>
-                    </div>
-                </form>
-                <div class="column is-narrow">
-                    <a href="#">
+            </div> -->
+            <nav class="level is-mobile">
+                <div class="level-left" style="flex-grow:1;">
+                    <button class="button is-rounded is-small" tag-id="" style="width:100%;"></button>
+                </div>
+                <div class="level-right">
+                    <a class="level-item" aria-label="pencil-alt" style="margin:0.4rem 0; padding: 0 0.5rem;">
                         <span class="icon is-small has-text-primary">
                             <i class="fas fa-pencil-alt"></i>
                         </span>
                     </a>
-                    <a href="#">
+                    <a class="level-item" aria-label="trash-alt" style="margin:0.4rem 0; padding: 0 0.5rem;">
                         <span class="icon is-small has-text-danger">
                             <i class="fas fa-trash-alt"></i>
                         </span>
                     </a>
                 </div>
-            </div>
+            </nav>
+        </li>
+    </template>
+
+    <template id="template_card">
+        <div class="box" card-id="">
+            <article class="media">
+                <div class="media-content">
+                    <div class="content">
+                        <p></p>
+                        <form action="" method="POST" class="is-hidden">
+                            <div class="field has-addons">
+                                <div class="control">
+                                    <input type="text" class="input is-small" name="title" value=""
+                                        placeholder="Nom de la carte">
+                                    <input type="color" class="input is-small" name="color" value="#ffffff">
+                                </div>
+                                <input type="hidden" name="id" value="">
+                                <input type="hidden" name="position" value="">
+                                <input type="hidden" name="list_id" value="">
+                                <div class="control">
+                                    <button class="button is-small is-success">Valider</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <nav class="level is-mobile">
+                        <div class="level-left">
+                            <a class="level-item" aria-label="pencil-alt">
+                                <span class="icon is-small has-text-primary">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </span>
+                            </a>
+                            <a class="level-item" aria-label="trash-alt">
+                                <span class="icon is-small has-text-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </span>
+                            </a>
+                        </div>
+                    </nav>
+                </div>
+            </article>
         </div>
     </template>
     <script src="./assets/js/joKamban.js"></script>

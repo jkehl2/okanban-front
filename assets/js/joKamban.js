@@ -78,24 +78,24 @@ const joKanban = {
     base_url: 'http://localhost:3000',
     list: {
       /** 
-       * @method getListsFromAPI Get all list from API
-       * @returns {Promise} Array of List Object from API
+       * @method getListsFromAPI Get all list from DB
+       * @returns {Promise} Array of List Object from DB
        */
       getListsFromAPI() {
         return joKanban.api.sendRequest(`${joKanban.api.base_url}/list`, "GET", null);
       },
 
       /** 
-       * @method postNewListToAPI Post a new List to API
-       * @param {any} newList A new List Object for sending to API
-       * @returns {Promise} A List Object from API with id
+       * @method postNewListToAPI Post a new List to DB
+       * @param {any} newList A new List Object for sending to DB
+       * @returns {Promise} A List Object from DB with id
        */
       async postNewListToAPI(newList) {
         return joKanban.api.sendRequest(`${joKanban.api.base_url}/list`, "POST", newList);
       },
 
       /** 
-       * @method deleteListById Delete a List by ID
+       * @method deleteListById Delete a List by ID In DB
        * @param {String} listId Target List listId to delete
        */
       async deleteListById(listId) {
@@ -103,8 +103,8 @@ const joKanban = {
       },
 
       /** 
-       * @method updateListToAPI Update a List to API
-       * @param {any} list A List Object for sending to API
+       * @method updateListToAPI Update a List to DB
+       * @param {any} list A List Object for sending to DB
        */
       async updateListToAPI(list) {
         return joKanban.api.sendRequest(`${joKanban.api.base_url}/list/${list.id}`, "PATCH", list);
@@ -112,24 +112,24 @@ const joKanban = {
     },
     card: {
       /** 
-       * @method getCardsFromAPI Get all Cards from API
-       * @returns {Promise} Array of Card Object from API
+       * @method getCardsFromAPI Get all Cards from DB
+       * @returns {Promise} Array of Card Object from DB
        */
       async getCardsFromAPI() {
         return joKanban.api.sendRequest(`${joKanban.api.base_url}/card`, "GET", null);
       },
 
       /** 
-       * @method postCardToAPI Post a new Card to API
-       * @param {any} cardFragment A new Card Object for sending to API
-       * @returns {Promise} A Card Object from API with id
+       * @method postCardToAPI Post a new Card to DB
+       * @param {any} cardFragment A new Card Object for sending to DB
+       * @returns {Promise} A Card Object from DB with id
        */
       async postCardToAPI(cardFragment) {
         return joKanban.api.sendRequest(`${joKanban.api.base_url}/card`, "POST", cardFragment);
       },
 
       /** 
-       * @method deleteCardById Delete a Card by ID
+       * @method deleteCardById Delete a Card by ID in DB
        * @param {String} cardId Target Card cardId to delete
        */
       async deleteCardById(cardId) {
@@ -137,8 +137,8 @@ const joKanban = {
       },
 
       /** 
-       * @method updateCardToAPI Update a card to API
-       * @param {any} card A card Object for sending to API
+       * @method updateCardToAPI Update a card to DB
+       * @param {any} card A card Object for sending to DB
        */
       async updateCardToAPI(card) {
         return joKanban.api.sendRequest(`${joKanban.api.base_url}/card/${card.id}`, "PATCH", card);
@@ -147,24 +147,24 @@ const joKanban = {
 
     tag: {
       /** 
-       * @method getTagsFromAPI Get all Tags from API
-       * @returns {Promise} Array of Tag Object from API
+       * @method getTagsFromAPI Get all Tags from DB
+       * @returns {Promise} Array of Tag Object from DB
        */
       async getTagsFromAPI() {
         return joKanban.api.sendRequest(`${joKanban.api.base_url}/tag`, "GET", null);
       },
 
       /** 
-       * @method postTagToAPI Post a new Tag to API
-       * @param {any} tag A new Tag Object for sending to API
-       * @returns {Promise} A Tag Object from API with id
+       * @method postTagToAPI Post a new Tag to DB
+       * @param {any} tag A new Tag Object for sending to DB
+       * @returns {Promise} A Tag Object from DB with id
        */
       async postTagToAPI(tag) {
         return joKanban.api.sendRequest(`${joKanban.api.base_url}/tag`, "POST", tag);
       },
 
       /** 
-       * @method deleteTagById Delete a Tag by ID
+       * @method deleteTagById Delete a Tag by ID in DB
        * @param {String} tagId Target Tag tagId to delete
        */
       async deleteTagById(tagId) {
@@ -172,11 +172,29 @@ const joKanban = {
       },
 
       /** 
-       * @method updateTagToAPI Update a Tag to API
-       * @param {any} tag A Tag Object for sending to API
+       * @method updateTagToAPI Update a Tag to DB
+       * @param {any} tag A Tag Object for sending to DB
        */
       async updateTagToAPI(tag) {
         return joKanban.api.sendRequest(`${joKanban.api.base_url}/tag/${tag.id}`, "PATCH", tag);
+      },
+
+      /** 
+       * @method associateTagToCardByIds associate a Tag to a Card in DB By theirs Id
+       * @param {String} tagId Target Tag tagId to associate
+       * @param {String} cardId Target Card cardId to associate
+       */
+      async associateTagToCardByIds(tagId, cardId) {
+        return joKanban.api.sendRequest(`${joKanban.api.base_url}/card/${cardId}/tag/${tagId}`, "PATCH", null);
+      },
+
+      /** 
+       * @method dissociateTagToCardByIds dissociate a Tag to a Card in DB By theirs Id
+       * @param {String} tagId Target Tag tagId to dissociate
+       * @param {String} cardId Target Card cardId to dissociate
+       */
+      async dissociateTagToCardByIds(tagId, cardId) {
+        return joKanban.api.sendRequest(`${joKanban.api.base_url}/card/${cardId}/tag/${tagId}`, "DELETE", null);
       }
     },
 
@@ -295,13 +313,13 @@ const joKanban = {
      * @param {Event} event - Click event on Add Tag Button
      */
     clickAddTagBt() {
-        joKanban.elements.addTagModalForm.querySelector('input[type="text"][name="name"]').value = '';
-        joKanban.elements.addTagModalForm.querySelector('input[type="color"][name="color"]').value = '#ffffff';
-        // Submit Event Listener on "AddListModal" Form
-        joKanban.elements.addTagModalForm.removeEventListener('submit', joKanban.handleEvent.submitAddTagForm);
-        joKanban.elements.addTagModalForm.removeEventListener('submit', joKanban.handleEvent.submitEditTagForm);
-        joKanban.elements.addTagModalForm.addEventListener('submit', joKanban.handleEvent.submitAddTagForm);
-        joKanban.handleEvent.tools.toggleIsActiveHTMLElement(joKanban.elements.addTagModal);
+      joKanban.elements.addTagModalForm.querySelector('input[type="text"][name="name"]').value = '';
+      joKanban.elements.addTagModalForm.querySelector('input[type="color"][name="color"]').value = '#ffffff';
+      // Submit Event Listener on "AddListModal" Form
+      joKanban.elements.addTagModalForm.removeEventListener('submit', joKanban.handleEvent.submitAddTagForm);
+      joKanban.elements.addTagModalForm.removeEventListener('submit', joKanban.handleEvent.submitEditTagForm);
+      joKanban.elements.addTagModalForm.addEventListener('submit', joKanban.handleEvent.submitAddTagForm);
+      joKanban.handleEvent.tools.toggleIsActiveHTMLElement(joKanban.elements.addTagModal);
     },
 
     /**
@@ -428,7 +446,7 @@ const joKanban = {
       return (event) => {
         const cardElmt = event.target.closest('div[card-id]');
 
-        const cardNameElmt = cardElmt.querySelector('.columns').querySelectorAll('.column')[0];
+        const cardNameElmt = cardElmt.querySelector('.content p');
         joKanban.handleEvent.tools.toggleIsHiddenHTMLElement(cardNameElmt);
 
         const cardNameFormElmt = cardElmt.querySelector('form');
@@ -452,7 +470,7 @@ const joKanban = {
 
         const cardElmt = event.target.closest('div[card-id]');
 
-        const cardNameElmt = cardElmt.querySelector('.columns').querySelectorAll('.column')[0];
+        const cardNameElmt = cardElmt.querySelector('.content p');
         joKanban.handleEvent.tools.toggleIsHiddenHTMLElement(cardNameElmt);
 
         const cardNameFormElmt = cardElmt.querySelector('form');
@@ -470,6 +488,7 @@ const joKanban = {
         const target_list = joKanban.domUpdates.tools.queryListElmtById(listId);
         const listTitleElmt = target_list.querySelector('h2');
         joKanban.handleEvent.tools.toggleIsHiddenHTMLElement(listTitleElmt);
+        joKanban.handleEvent.tools.toggleIsHiddenHTMLElement(target_list.querySelector('.level-right'));
 
         const listTitleFormElmt = target_list.querySelector('form');
         listTitleFormElmt.querySelector('input[type="text"]').value = listTitleElmt.textContent;
@@ -491,6 +510,7 @@ const joKanban = {
         const target_list = joKanban.domUpdates.tools.queryListElmtById(listId);
         joKanban.handleEvent.tools.toggleIsHiddenHTMLElement(target_list.querySelector('form'));
         joKanban.handleEvent.tools.toggleIsHiddenHTMLElement(target_list.querySelector('h2'));
+        joKanban.handleEvent.tools.toggleIsHiddenHTMLElement(target_list.querySelector('.level-right'));
       }
     }
 
@@ -750,7 +770,7 @@ const joKanban = {
         const card_container = target_list.querySelector('.panel-block');
         const cardFragment = document.importNode(joKanban.elements.templateCard.content, true);
 
-        cardFragment.querySelector('.columns').querySelectorAll('.column')[0].textContent = card.title;
+        cardFragment.querySelector('.content p').textContent = card.title;
         cardFragment.querySelector('div[card-id]').setAttribute('card-id', card.id);
         cardFragment.querySelector('div[card-id]').style.background = card.color;
 
@@ -778,7 +798,7 @@ const joKanban = {
      */
     async updateCardInDom(card) {
       const target_card = joKanban.domUpdates.tools.queryCardElmtById(card.id);
-      target_card.querySelector('.columns').querySelectorAll('.column')[0].textContent = card.title;
+      target_card.querySelector('.content p').textContent = card.title;
       target_card.style.background = card.color;
 
       const cardFormElmt = target_card.querySelector('form');

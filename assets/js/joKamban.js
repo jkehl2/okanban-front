@@ -725,6 +725,24 @@ const joKanban = {
       },
 
       /**
+       * @method moveCardToList Move card To a list from user action
+       * @param {all} listTo - target List TO Object
+       * @param {all} cardFrom - target Move Card
+       */
+      async moveCardToList(listTo, cardFrom) {
+        const listFrom = joKanban.getDataListById(cardFrom.list_id);
+        listFrom.cards = listFrom.cards.filter((card) => {
+          return card.id != cardFrom.id;
+        })
+        cardFrom.position = listTo.cards.length;
+        cardFrom.list_id = listTo.id;
+        await joKanban.api.card.updateCardToAPI(cardFrom);
+        listTo.cards.push(cardFrom);
+        joKanban.domUpdates.refreshCardsInList(listFrom);
+        joKanban.domUpdates.refreshCardsInList(listTo);
+      },
+
+      /**
        * @method moveCard Move card from user action
        * @param {all} cardAfter - target Card After
        * @param {all} cardFrom - target Move Card
@@ -897,7 +915,7 @@ const joKanban = {
         });
 
         listElmt.addEventListener("dragover", function (event) {
-          if (joKanban.draggedElmt.hasAttribute("list-id")) {
+          if (joKanban.draggedElmt.hasAttribute("list-id") || joKanban.draggedElmt.hasAttribute("card-id")) {
             // prevent default to allow drop
             event.preventDefault();
           }
@@ -907,6 +925,8 @@ const joKanban = {
           event.preventDefault();
           if (joKanban.draggedElmt.hasAttribute("list-id")) {
             listElmt.style.borderLeft = '3px solid #000000';
+          } else if (joKanban.draggedElmt.hasAttribute("card-id")) {
+            listElmt.style.background = '#87ceeb';
           }
         }, false);
 
@@ -914,18 +934,20 @@ const joKanban = {
           event.preventDefault();
           if (joKanban.draggedElmt.hasAttribute("list-id") && (!listElmt.contains(event.relatedTarget))) {
             listElmt.style.borderLeft = 'none';
+          } else if (joKanban.draggedElmt.hasAttribute("card-id")) {
+            listElmt.style.background = 'none';
           }
         }, false);
 
-        // listElmt.addEventListener('drop', (event) => {
-        //   event.preventDefault();
-        //   if (joKanban.draggedElmt.hasAttribute("card-id")) {
-        //     event.target.closest('div[card-id]').style.borderTop = 'none';
-        //     const cardFromListId = joKanban.draggedElmt.querySelector('input[type="hidden"][name="list_id"]').value;
-        //     const [, cardFrom] = joKanban.getDataListNdCardById(cardFromListId, joKanban.draggedElmt.getAttribute('card-id'));
-        //     joKanban.domUpdates.fromUserAction.moveCard(card, cardFrom);
-        //   }
-        // }, false);
+        listElmt.addEventListener('drop', (event) => {
+          event.preventDefault();
+          if (joKanban.draggedElmt.hasAttribute("card-id")) {
+            listElmt.style.background = 'none';
+            const cardFromListId = joKanban.draggedElmt.querySelector('input[type="hidden"][name="list_id"]').value;
+            const [, cardFrom] = joKanban.getDataListNdCardById(cardFromListId, joKanban.draggedElmt.getAttribute('card-id'));
+            joKanban.domUpdates.fromUserAction.moveCardToList(list, cardFrom);
+          }
+        }, false);
 
 
         joKanban.elements.containerList.appendChild(listFragment);

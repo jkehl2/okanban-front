@@ -67,7 +67,8 @@ const joKanban = {
     templateList: document.getElementById('template_list'),
     templateCard: document.getElementById('template_card'),
     containerList: document.querySelector('.card-lists'),
-    templateTag: document.getElementById('template_tag'),
+    templateTagMenu: document.getElementById('template_tagMenu'),
+    templateTagCard: document.getElementById('template_tagCard'),
     containerTagMenu: document.getElementById('tags-menu'),
     addTagModalAddButton: document.getElementById('addTagButton'),
     addTagModalForm: document.getElementById('modalTagForm'),
@@ -542,7 +543,7 @@ const joKanban = {
        * @returns {HTMLElement} Tag HTML Element with tag-id attribut equal to tagId param
        */
       queryTagElmtInMenuById(tagId) {
-        return joKanban.elements.containerTagMenu.querySelector(`button[tag-id="${tagId}"]`).closest('li');
+        return joKanban.elements.containerTagMenu.querySelector(`a[tag-id="${tagId}"]`).closest('li');
       }
     },
     fromUserAction: {
@@ -686,7 +687,7 @@ const joKanban = {
           joKanban.domUpdates.updateTagInDom(tag);
         } else {
           const target_tag = joKanban.domUpdates.tools.queryTagElmtInMenuById(tag.id);
-          tag.name = target_tag.querySelector('button').textContent;
+          tag.name = target_tag.querySelector('a[tag-id]').textContent;
           tag.color = target_tag.style.background;
         }
       },
@@ -824,8 +825,8 @@ const joKanban = {
      */
     async makeTagInMenu(tag) {
       if ("content" in document.createElement('template')) {
-        const tagFragment = document.importNode(joKanban.elements.templateTag.content, true);
-        const buttonElmt = tagFragment.querySelector('button');
+        const tagFragment = document.importNode(joKanban.elements.templateTagMenu.content, true);
+        const buttonElmt = tagFragment.querySelector('a[tag-id]');
         buttonElmt.textContent = tag.name;
         buttonElmt.style.background = tag.color;
         buttonElmt.setAttribute('tag-id', tag.id);
@@ -846,7 +847,7 @@ const joKanban = {
      */
     async updateTagInDom(tag) {
       const target_tag = joKanban.domUpdates.tools.queryTagElmtInMenuById(tag.id);
-      const buttonElmt = target_tag.querySelector('button');
+      const buttonElmt = target_tag.querySelector('a[tag-id]');
       buttonElmt.textContent = tag.name;
       buttonElmt.style.background = tag.color;
     },

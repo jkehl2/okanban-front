@@ -26,7 +26,7 @@
                         <p class="menu-label"> General </p>
                         <ul class="menu-list">
                             <li>
-                                <button class="button is-primary is-rounded" style="width:100%;justify-content: left;"
+                                <button class="button is-primary is-rounded" style="width:100%;justify-content: left; "
                                     id="addListButton">
                                     <span class="icon is-small">
                                         <i class="fas fa-plus"></i>
@@ -35,8 +35,8 @@
                                 </button>
                             </li>
                             <li>
-                                <button class="button is-link is-rounded" style="width:100%;justify-content: left;"
-                                    id="addTagButton">
+                                <button class="button is-link is-rounded"
+                                    style="width:100%;justify-content: left;margin-top: 0.25rem;" id="addTagButton">
                                     <span class="icon is-small">
                                         <i class="fas fa-plus"></i>
                                     </span>
@@ -178,30 +178,12 @@
         </div>
     </template>
 
-    <template id="template_tag">
+    <template id="template_tagMenu">
         <li>
-            <!-- <div class="is-flex is-flex-direction-row is-flex-wrap-nowrap is-justify-content-space-between is-align-content-space-between"
-                style="width: 100%;">
-                <div style="flex-grow: 1;">
-                    <button class="button is-rounded is-small" style="width: 100%;" tag-id=""></button>
-                </div>
-                <div
-                    class="is-flex is-flex-direction-row is-flex-wrap-nowrap is-justify-content-space-around is-align-content-space-around">
-                    <a href="#">
-                        <span class="icon is-small has-text-primary">
-                            <i class="fas fa-pencil-alt"></i>
-                        </span>
-                    </a>
-                    <a href="#">
-                        <span class="icon is-small has-text-danger">
-                            <i class="fas fa-trash-alt"></i>
-                        </span>
-                    </a>
-                </div>
-            </div> -->
             <nav class="level is-mobile">
                 <div class="level-left" style="flex-grow:1;">
-                    <button class="button is-rounded is-small" tag-id="" style="width:100%;"></button>
+                    <!-- <button class="button is-rounded is-small" tag-id="" style="width:100%;"></button> -->
+                    <a class="level-item button is-rounded is-small" tag-id="" style="width:100%;"></a>
                 </div>
                 <div class="level-right">
                     <a class="level-item" aria-label="pencil-alt" style="margin:0.4rem 0; padding: 0 0.5rem;">
@@ -219,10 +201,20 @@
         </li>
     </template>
 
+    <template id="template_tagCard">
+        <a class="level-item button is-rounded is-small"></a>
+    </template>
+
     <template id="template_card">
         <div class="box" card-id="">
             <article class="media">
                 <div class="media-content">
+                    <nav class="level is-mobile">
+                        <div class="level-left">
+                            
+                            
+                        </div>
+                    </nav>
                     <div class="content">
                         <p></p>
                         <form action="" method="POST" class="is-hidden">

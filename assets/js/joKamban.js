@@ -873,7 +873,8 @@ const joKanban = {
     makeListInDOM(list) {
       if ("content" in document.createElement('template')) {
         const listFragment = document.importNode(joKanban.elements.templateList.content, true);
-        listFragment.querySelector('div[list-id]').setAttribute('list-id', list.id);
+        const listElmt = listFragment.querySelector('div[list-id]');
+        listElmt.setAttribute('list-id', list.id);
 
         const listTitleElmt = listFragment.querySelector('h2');
         listTitleElmt.textContent = list.name;
@@ -889,6 +890,43 @@ const joKanban = {
 
         const deleteListBt = listFragment.querySelector('.fa-trash-alt').closest('a');
         deleteListBt.addEventListener('click', joKanban.handleEvent.clickDeleteList(list.id));
+
+        listTitleElmt.addEventListener('dragstart', (event) => {
+          joKanban.draggedElmt = event.target.closest('div[list-id]');
+          console.log(joKanban.draggedElmt);
+        });
+
+        listElmt.addEventListener("dragover", function (event) {
+          if (joKanban.draggedElmt.hasAttribute("list-id")) {
+            // prevent default to allow drop
+            event.preventDefault();
+          }
+        }, false);
+
+        listElmt.addEventListener("dragenter", function (event) {
+          event.preventDefault();
+          if (joKanban.draggedElmt.hasAttribute("list-id")) {
+            listElmt.style.borderLeft = '3px solid #000000';
+          }
+        }, false);
+
+        listElmt.addEventListener("dragleave", function (event) {
+          event.preventDefault();
+          if (joKanban.draggedElmt.hasAttribute("list-id") && (!listElmt.contains(event.relatedTarget))) {
+            listElmt.style.borderLeft = 'none';
+          }
+        }, false);
+
+        // listElmt.addEventListener('drop', (event) => {
+        //   event.preventDefault();
+        //   if (joKanban.draggedElmt.hasAttribute("card-id")) {
+        //     event.target.closest('div[card-id]').style.borderTop = 'none';
+        //     const cardFromListId = joKanban.draggedElmt.querySelector('input[type="hidden"][name="list_id"]').value;
+        //     const [, cardFrom] = joKanban.getDataListNdCardById(cardFromListId, joKanban.draggedElmt.getAttribute('card-id'));
+        //     joKanban.domUpdates.fromUserAction.moveCard(card, cardFrom);
+        //   }
+        // }, false);
+
 
         joKanban.elements.containerList.appendChild(listFragment);
       }
@@ -964,12 +1002,18 @@ const joKanban = {
           if (joKanban.draggedElmt.hasAttribute("card-id")) {
             cardElmt.style.borderTop = '3px solid #000000';
           }
+          if (joKanban.draggedElmt.hasAttribute("tag-id")) {
+            cardElmt.style.border = '3px solid #000000';
+          }
         }, false);
 
         cardElmt.addEventListener("dragleave", function (event) {
           event.preventDefault();
           if (joKanban.draggedElmt.hasAttribute("card-id") && (!cardElmt.contains(event.relatedTarget))) {
             cardElmt.style.borderTop = 'none';
+          }
+          if (joKanban.draggedElmt.hasAttribute("tag-id") && (!cardElmt.contains(event.relatedTarget))) {
+            cardElmt.style.border = 'none';
           }
         }, false);
 
@@ -979,7 +1023,7 @@ const joKanban = {
             joKanban.domUpdates.fromUserAction.associateTagToCard(joKanban.draggedElmt.getAttribute("tag-id"), card.id, list.id);
           }
           if (joKanban.draggedElmt.hasAttribute("card-id")) {
-            event.target.closest('div[card-id]').style.borderTop = 'none';
+            cardElmt.style.borderTop = 'none';
             const cardFromListId = joKanban.draggedElmt.querySelector('input[type="hidden"][name="list_id"]').value;
             const [, cardFrom] = joKanban.getDataListNdCardById(cardFromListId, joKanban.draggedElmt.getAttribute('card-id'));
             joKanban.domUpdates.fromUserAction.moveCard(card, cardFrom);

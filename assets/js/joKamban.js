@@ -725,6 +725,37 @@ const joKanban = {
       },
 
       /**
+       * @method moveCard Move card from user action
+       * @param {all} cardAfter - target Card After
+       * @param {all} cardFrom - target Move Card
+       */
+      async moveCard(cardAfter, cardFrom) {
+        const listFrom = joKanban.getDataListById(cardFrom.list_id);
+        listFrom.cards = listFrom.cards.filter((card) => {
+          return card.id != cardFrom.id;
+        })
+        cardFrom.position = cardAfter.position;
+        cardFrom.list_id = cardAfter.list_id;
+        await joKanban.api.card.updateCardToAPI(cardFrom);
+
+        const listTo = joKanban.getDataListById(cardAfter.list_id);
+        listTo.cards.forEach((card) => {
+          if (card.position >= cardAfter.position) {
+            card.position++;
+          }
+        });
+
+        listTo.cards.push(cardFrom);
+        listTo.cards.sort((card1, card2) => {
+          return card1.position < card2.position ? -1 : (card1.position > card2.position ? 1 : 0);
+        }).forEach(async (card) => {
+          await joKanban.api.card.getCardByIdFromAPI(card.id);
+        });
+        joKanban.domUpdates.refreshCardsInList(listFrom);
+        joKanban.domUpdates.refreshCardsInList(listTo);
+      },
+
+      /**
        * @method createTag Create Tag from FormData
        * @param {FormData} formData
        */
@@ -917,10 +948,28 @@ const joKanban = {
         const deleteCardBt = cardFragment.querySelector('.fa-trash-alt').closest('a');
         deleteCardBt.addEventListener('click', joKanban.handleEvent.clickDeleteCardBt(list.id, card.id));
 
+        cardElmt.addEventListener('dragstart', (event) => {
+          joKanban.draggedElmt = event.target;
+        });
+
         cardElmt.addEventListener("dragover", function (event) {
-          if (joKanban.draggedElmt.hasAttribute("tag-id")) {
+          if (joKanban.draggedElmt.hasAttribute("tag-id") || joKanban.draggedElmt.hasAttribute("card-id")) {
             // prevent default to allow drop
             event.preventDefault();
+          }
+        }, false);
+
+        cardElmt.addEventListener("dragenter", function (event) {
+          event.preventDefault();
+          if (joKanban.draggedElmt.hasAttribute("card-id")) {
+            cardElmt.style.borderTop = '3px solid #000000';
+          }
+        }, false);
+
+        cardElmt.addEventListener("dragleave", function (event) {
+          event.preventDefault();
+          if (joKanban.draggedElmt.hasAttribute("card-id") && (!cardElmt.contains(event.relatedTarget))) {
+            cardElmt.style.borderTop = 'none';
           }
         }, false);
 
@@ -928,6 +977,12 @@ const joKanban = {
           event.preventDefault();
           if (joKanban.draggedElmt.hasAttribute("tag-id")) {
             joKanban.domUpdates.fromUserAction.associateTagToCard(joKanban.draggedElmt.getAttribute("tag-id"), card.id, list.id);
+          }
+          if (joKanban.draggedElmt.hasAttribute("card-id")) {
+            event.target.closest('div[card-id]').style.borderTop = 'none';
+            const cardFromListId = joKanban.draggedElmt.querySelector('input[type="hidden"][name="list_id"]').value;
+            const [, cardFrom] = joKanban.getDataListNdCardById(cardFromListId, joKanban.draggedElmt.getAttribute('card-id'));
+            joKanban.domUpdates.fromUserAction.moveCard(card, cardFrom);
           }
         }, false);
 
@@ -1069,6 +1124,26 @@ const joKanban = {
       });
       if (card.tags.length == 0) {
         containerTagsInCard.closest('nav').classList.add('is-hidden');
+      }
+    },
+
+    /**
+     * @method refreshCardsInList Refresh Tags in a Card in DOM
+     * @param {all} card Card object
+     * @param {all} list List object
+     */
+    async refreshCardsInList(list) {
+      if ("content" in document.createElement('template')) {
+        const target_list = joKanban.domUpdates.tools.queryListElmtById(list.id);
+        const card_container = target_list.querySelector('.panel-block');
+        joKanban.domUpdates.tools.removeAllChildHTMLElement(card_container);
+
+        list.cards.sort((card1, card2) => {
+          return card1.position < card2.position ? -1 : (card1.position > card2.position ? 1 : 0);
+        }).forEach((card) => {
+          joKanban.domUpdates.makeCardInDom(list, card);
+          joKanban.domUpdates.makeAllTagsInCardFromApi(card, list);
+        });
       }
     },
 

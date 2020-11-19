@@ -666,6 +666,17 @@ const joKanban = {
       },
 
       /**
+       * @method moveList Move a List before an other one from user action
+       * @param {all} listAfter - target List After object
+       * @param {all} listFrom - target List From object
+       */
+      async moveList(listAfter, listFrom) {
+        joKanban.data.filter((list) => {
+          return list.id == listFrom
+        });
+      },
+
+      /**
        * @method createCard Create card from FormData
        * @param {FormData} formData
        */
@@ -743,9 +754,9 @@ const joKanban = {
       },
 
       /**
-       * @method moveCard Move card from user action
-       * @param {all} cardAfter - target Card After
-       * @param {all} cardFrom - target Move Card
+       * @method moveCard Move card before an other one from user action
+       * @param {all} cardAfter - target Card After object
+       * @param {all} cardFrom - target Move Card object
        */
       async moveCard(cardAfter, cardFrom) {
         const listFrom = joKanban.getDataListById(cardFrom.list_id);
@@ -770,7 +781,10 @@ const joKanban = {
           await joKanban.api.card.getCardByIdFromAPI(card.id);
         });
         joKanban.domUpdates.refreshCardsInList(listFrom);
-        joKanban.domUpdates.refreshCardsInList(listTo);
+        joKanban.reIndexCardPositionInOneList(listFrom);
+        if (listFrom.id != listTo.id) {
+          joKanban.domUpdates.refreshCardsInList(listTo);
+        }
       },
 
       /**
@@ -909,7 +923,8 @@ const joKanban = {
         const deleteListBt = listFragment.querySelector('.fa-trash-alt').closest('a');
         deleteListBt.addEventListener('click', joKanban.handleEvent.clickDeleteList(list.id));
 
-        listTitleElmt.addEventListener('dragstart', (event) => {
+        const listHeaderElmt = listFragment.querySelector('.panel-heading');
+        listHeaderElmt.addEventListener('dragstart', (event) => {
           joKanban.draggedElmt = event.target.closest('div[list-id]');
           console.log(joKanban.draggedElmt);
         });
@@ -941,7 +956,12 @@ const joKanban = {
 
         listElmt.addEventListener('drop', (event) => {
           event.preventDefault();
-          if (joKanban.draggedElmt.hasAttribute("card-id")) {
+          if (joKanban.draggedElmt.hasAttribute("list-id")) {
+            listElmt.style.borderLeft = 'none';
+            const listFromId = joKanban.draggedElmt.querySelector('div[list-id]').getAttribute('list-id');
+            const listFrom = joKanban.getDataListById(listFromId);
+            joKanban.domUpdates.fromUserAction.moveList(list, listFrom);
+          } else if (joKanban.draggedElmt.hasAttribute("card-id")) {
             listElmt.style.background = 'none';
             const cardFromListId = joKanban.draggedElmt.querySelector('input[type="hidden"][name="list_id"]').value;
             const [, cardFrom] = joKanban.getDataListNdCardById(cardFromListId, joKanban.draggedElmt.getAttribute('card-id'));
@@ -977,6 +997,8 @@ const joKanban = {
       const target_list = joKanban.domUpdates.tools.queryListElmtById(list.id);
       target_list.remove();
     },
+
+
 
     /**
      * @method makeCardInDom Make a new Card in DOM

@@ -142,11 +142,11 @@
 
     <template id="template_list">
         <div class="column is-one-quarter is-narrow panel" list-id="" style="min-width: min-content;">
-            <div class="panel-heading has-background-info" style="min-width: max-content;">
+            <div class="panel-heading has-background-info" style="min-width: max-content;" draggable="true"
+            ondragstart="event.dataTransfer.setData('text/plain',null)">
                 <nav class="level is-mobile">
                     <div class="level-left">
-                        <h2 class="has-text-white" draggable="true"
-                            ondragstart="event.dataTransfer.setData('text/plain',null)"></h2>
+                        <h2 class="has-text-white"></h2>
                         <form action="" method="POST" class="is-hidden">
                             <div class="field has-addons">
                                 <div class="control">

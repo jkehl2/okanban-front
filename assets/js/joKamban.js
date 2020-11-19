@@ -666,14 +666,29 @@ const joKanban = {
       },
 
       /**
-       * @method moveList Move a List before an other one from user action
-       * @param {all} listAfter - target List After object
+       * @method moveList Move a List after an other one from user action
+       * @param {all} listBefore - target List Before object
        * @param {all} listFrom - target List From object
        */
-      async moveList(listAfter, listFrom) {
-        joKanban.data.filter((list) => {
-          return list.id == listFrom
-        });
+      async moveList(listBefore, listFrom) {
+        if (listBefore.id != listFrom.id) {
+          const tempPos = listFrom.position;
+          listFrom.position = listBefore.position;
+
+          joKanban.data = joKanban.data.filter((list) => {
+            return list.id != listFrom.id;
+          })
+
+          joKanban.data.forEach(async (list) => {
+            if (list.position <= listFrom.position && tempPos < list.position) {
+              list.position--;
+            }
+          });
+
+          joKanban.data.push(listFrom);
+          joKanban.domUpdates.moveListInDom(listBefore, listFrom);
+          joKanban.reIndexListNdCardPosition();
+        }
       },
 
       /**
@@ -926,7 +941,6 @@ const joKanban = {
         const listHeaderElmt = listFragment.querySelector('.panel-heading');
         listHeaderElmt.addEventListener('dragstart', (event) => {
           joKanban.draggedElmt = event.target.closest('div[list-id]');
-          console.log(joKanban.draggedElmt);
         });
 
         listElmt.addEventListener("dragover", function (event) {
@@ -939,7 +953,7 @@ const joKanban = {
         listElmt.addEventListener("dragenter", function (event) {
           event.preventDefault();
           if (joKanban.draggedElmt.hasAttribute("list-id")) {
-            listElmt.style.borderLeft = '3px solid #000000';
+            listElmt.style.borderRight = '3px solid #000000';
           } else if (joKanban.draggedElmt.hasAttribute("card-id")) {
             listElmt.style.background = '#87ceeb';
           }
@@ -948,7 +962,7 @@ const joKanban = {
         listElmt.addEventListener("dragleave", function (event) {
           event.preventDefault();
           if (joKanban.draggedElmt.hasAttribute("list-id") && (!listElmt.contains(event.relatedTarget))) {
-            listElmt.style.borderLeft = 'none';
+            listElmt.style.borderRight = 'none';
           } else if (joKanban.draggedElmt.hasAttribute("card-id")) {
             listElmt.style.background = 'none';
           }
@@ -957,8 +971,8 @@ const joKanban = {
         listElmt.addEventListener('drop', (event) => {
           event.preventDefault();
           if (joKanban.draggedElmt.hasAttribute("list-id")) {
-            listElmt.style.borderLeft = 'none';
-            const listFromId = joKanban.draggedElmt.querySelector('div[list-id]').getAttribute('list-id');
+            listElmt.style.borderRight = 'none';
+            const listFromId = joKanban.draggedElmt.getAttribute('list-id');
             const listFrom = joKanban.getDataListById(listFromId);
             joKanban.domUpdates.fromUserAction.moveList(list, listFrom);
           } else if (joKanban.draggedElmt.hasAttribute("card-id")) {
@@ -978,7 +992,7 @@ const joKanban = {
      * @method updateListInDom Update a list in DOM.
      * @param {all} list List object
      */
-    async updateListInDom(list) {
+    updateListInDom(list) {
       const target_list = joKanban.domUpdates.tools.queryListElmtById(list.id);
 
       const listTitleElmt = target_list.querySelector('h2');
@@ -993,19 +1007,30 @@ const joKanban = {
      * @method deleteListInDOM Delete a List in DOM
      * @param {all} list List object
      */
-    async deleteListInDOM(list) {
+    deleteListInDOM(list) {
       const target_list = joKanban.domUpdates.tools.queryListElmtById(list.id);
       target_list.remove();
     },
 
 
+    /**
+     * @method moveListInDom Move a List after on other one in DOM
+     * @param {all} listBefore - target List Before object
+     * @param {all} listFrom - target List From object
+     */
+    moveListInDom(listBefore, listFrom) {
+      const listBeforeElmt = joKanban.domUpdates.tools.queryListElmtById(listBefore.id);
+
+      const listFromElmt = joKanban.domUpdates.tools.queryListElmtById(listFrom.id);
+      joKanban.elements.containerList.insertBefore(listFromElmt, listBeforeElmt.nextSibling);
+    },
 
     /**
      * @method makeCardInDom Make a new Card in DOM
      * @param {all} list list object
      * @param {all} card card object
      */
-    async makeCardInDom(list, card) {
+    makeCardInDom(list, card) {
       if ("content" in document.createElement('template')) {
         const target_list = joKanban.domUpdates.tools.queryListElmtById(list.id);
         const card_container = target_list.querySelector('.panel-block');
@@ -1083,7 +1108,7 @@ const joKanban = {
      * @method updateCardInDom Update a card in DOM.
      * @param {all} card card object
      */
-    async updateCardInDom(card) {
+    updateCardInDom(card) {
       const target_card = joKanban.domUpdates.tools.queryCardElmtById(card.id);
       target_card.querySelector('.content p').textContent = card.title;
       target_card.style.background = card.color;
@@ -1100,7 +1125,7 @@ const joKanban = {
      * @method deleteCardInDOM Delete a card in DOM
      * @param {all} card card object
      */
-    async deleteCardInDOM(card) {
+    deleteCardInDOM(card) {
       const target_card = joKanban.domUpdates.tools.queryCardElmtById(card.id);
       target_card.remove();
     },
@@ -1109,7 +1134,7 @@ const joKanban = {
      * @method makeTagInMenu Make a tag in menu
      * @param {all} tag tag object
      */
-    async makeTagInMenu(tag) {
+    makeTagInMenu(tag) {
       if ("content" in document.createElement('template')) {
         const tagFragment = document.importNode(joKanban.elements.templateTagMenu.content, true);
         const buttonElmt = tagFragment.querySelector('a[tag-id]');
@@ -1135,7 +1160,7 @@ const joKanban = {
      * @method updateTagInMenu Update a card in DOM.
      * @param {all} tag tag object
      */
-    async updateTagInMenu(tag) {
+    updateTagInMenu(tag) {
       const target_tag = joKanban.domUpdates.tools.queryTagElmtInMenuById(tag.id);
       const buttonElmt = target_tag.querySelector('a[tag-id]');
 
@@ -1147,7 +1172,7 @@ const joKanban = {
      * @method deleteTagInMenu Delete a Tag in DOM
      * @param {all} tag Tag object
      */
-    async deleteTagInMenu(tag) {
+    deleteTagInMenu(tag) {
       const target_tag = joKanban.domUpdates.tools.queryTagElmtInMenuById(tag.id);
       target_tag.remove();
     },
@@ -1158,7 +1183,7 @@ const joKanban = {
      * @param {all} card Card object
      * @param {all} list List object
      */
-    async associateTagToCardInDOM(tag, card, list) {
+    associateTagToCardInDOM(tag, card, list) {
       if ("content" in document.createElement('template')) {
         const tagFragment = document.importNode(joKanban.elements.templateTagCard.content, true);
         const target_card = joKanban.domUpdates.tools.queryCardElmtById(card.id);
@@ -1178,7 +1203,7 @@ const joKanban = {
      * @param {all} tag Tag object
      * @param {all} card Card object
      */
-    async dissociateTagOfCardInDOM(tag, card) {
+    dissociateTagOfCardInDOM(tag, card) {
       const target_tag = joKanban.domUpdates.tools.queryTagElmtInCardById(card.id, tag.id);
       target_tag.remove();
       if (card.tags.length == 0) {
@@ -1193,7 +1218,7 @@ const joKanban = {
      * @param {all} card Card object
      * @param {all} list List object
      */
-    async refreshCardTagsInDom(card, list) {
+    refreshCardTagsInDom(card, list) {
       const target_card = joKanban.domUpdates.tools.queryCardElmtById(card.id);
       const containerTagsInCard = target_card.querySelector('.tags-container');
 
@@ -1221,7 +1246,7 @@ const joKanban = {
      * @param {all} card Card object
      * @param {all} list List object
      */
-    async refreshCardsInList(list) {
+    refreshCardsInList(list) {
       if ("content" in document.createElement('template')) {
         const target_list = joKanban.domUpdates.tools.queryListElmtById(list.id);
         const card_container = target_list.querySelector('.panel-block');

@@ -10,6 +10,8 @@ const joKanban = {
   init() {
     joKanban.initModalsListener();
     joKanban.refreshjOkanban();
+
+
   },
 
   /**
@@ -784,7 +786,7 @@ const joKanban = {
           cardsUpdate.forEach(async (card) => {
             const cardUpdate = await joKanban.api.card.getCardByIdFromAPI(card.id);
             const list = joKanban.getDataListById(card.list_id);
-            list.cards.filter((cardList) => {
+            list.cards = list.cards.filter((cardList) => {
               return cardList.id != card.id;
             })
             list.cards.push(cardUpdate);
@@ -802,10 +804,15 @@ const joKanban = {
       async associateTagToCard(tagId, cardId, listId) {
         const tag = joKanban.getDataTagById(tagId);
         const [list, card] = joKanban.getDataListNdCardById(listId, cardId);
-        const response = await joKanban.api.tag.associateTagToCardByIds(tagId, cardId);
-        if (response) {
-          card.tags.push(tag);
-          joKanban.domUpdates.associateTagToCardInDOM(tag, card, list);
+        const isNotInCard = (card.tags.find((tag) => {
+          return tag.id == tagId;
+        })) == null;
+        if (isNotInCard) {
+          const response = await joKanban.api.tag.associateTagToCardByIds(tagId, cardId);
+          if (response) {
+            card.tags.push(tag);
+            joKanban.domUpdates.associateTagToCardInDOM(tag, card, list);
+          }
         }
       },
 
@@ -820,7 +827,7 @@ const joKanban = {
         const [, card] = joKanban.getDataListNdCardById(listId, cardId);
         const response = await joKanban.api.tag.dissociateTagOfCardByIds(tagId, cardId);
         if (response) {
-          card.tags.filter((tag) => {
+          card.tags = card.tags.filter((tag) => {
             return tag.id != tagId;
           });
           joKanban.domUpdates.dissociateTagOfCardInDOM(tag, card);
@@ -892,8 +899,9 @@ const joKanban = {
         const cardFragment = document.importNode(joKanban.elements.templateCard.content, true);
 
         cardFragment.querySelector('.content p').textContent = card.title;
-        cardFragment.querySelector('div[card-id]').setAttribute('card-id', card.id);
-        cardFragment.querySelector('div[card-id]').style.background = card.color;
+        const cardElmt = cardFragment.querySelector('div[card-id]');
+        cardElmt.setAttribute('card-id', card.id);
+        cardElmt.style.background = card.color;
 
         const editCardBt = cardFragment.querySelector('.fa-pencil-alt').closest('a');
         editCardBt.addEventListener('click', joKanban.handleEvent.clickEditCardBt(list.id, card.id));
@@ -908,6 +916,20 @@ const joKanban = {
 
         const deleteCardBt = cardFragment.querySelector('.fa-trash-alt').closest('a');
         deleteCardBt.addEventListener('click', joKanban.handleEvent.clickDeleteCardBt(list.id, card.id));
+
+        cardElmt.addEventListener("dragover", function (event) {
+          if (joKanban.draggedElmt.hasAttribute("tag-id")) {
+            // prevent default to allow drop
+            event.preventDefault();
+          }
+        }, false);
+
+        cardElmt.addEventListener('drop', (event) => {
+          event.preventDefault();
+          if (joKanban.draggedElmt.hasAttribute("tag-id")) {
+            joKanban.domUpdates.fromUserAction.associateTagToCard(joKanban.draggedElmt.getAttribute("tag-id"), card.id, list.id);
+          }
+        }, false);
 
         card_container.appendChild(cardFragment);
       }
@@ -950,6 +972,10 @@ const joKanban = {
         buttonElmt.textContent = tag.name;
         buttonElmt.style.background = tag.color;
         buttonElmt.setAttribute('tag-id', tag.id);
+
+        buttonElmt.addEventListener('dragstart', (event) => {
+          joKanban.draggedElmt = event.target;
+        });
 
         const editTagBt = tagFragment.querySelector('.fa-pencil-alt').closest('a');
         editTagBt.addEventListener('click', joKanban.handleEvent.clickEditTagBt(tag.id));

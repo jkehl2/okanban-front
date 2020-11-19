@@ -36,6 +36,25 @@ const joKanban = {
   },
 
   /**
+   * @method getDataCardByTagId Get All Card Object wich associate target Tag
+   * @param {String} tagId Target Tag tagId
+   * @returns {Array} Array of Card object
+   */
+  getDataCardByTagId(tagId) {
+    let cards = [];
+    joKanban.data.forEach((list) => {
+      list.cards.forEach((card) => {
+        card.tags.forEach((tag) => {
+          if (tag.id == tagId) {
+            cards.push(card);
+          };
+        });
+      });
+    });
+    return cards;
+  },
+
+  /**
    * @method getDataCardById Get List and Card couple Object from joKanban DATA
    * @param {String} listId Target List listId 
    * @param {String} cardId Target Card cardId 
@@ -118,6 +137,16 @@ const joKanban = {
        */
       async getCardsFromAPI() {
         return joKanban.api.sendRequest(`${joKanban.api.base_url}/card`, "GET", null);
+      },
+
+
+      /** 
+       * @method getCardByIdFromAPI Get all Cards from DB
+       * @param {String} cardId Target Card cardId
+       * @returns {Promise} Card Object from DB
+       */
+      async getCardByIdFromAPI(cardId) {
+        return joKanban.api.sendRequest(`${joKanban.api.base_url}/card/${cardId}`, "GET", null);
       },
 
       /** 
@@ -536,6 +565,16 @@ const joKanban = {
   domUpdates: {
     tools: {
       /**
+       * @method removeAllChildHTMLElement Get a List HTML Element by listId
+       * @param {HTMLElement} element Target HTML element
+       */
+      removeAllChildHTMLElement(element) {
+        while (element.children.length > 0) {
+          element.removeChild(element.children[0]);
+        }
+      },
+
+      /**
        * @method queryListElmtById Get a List HTML Element by listId
        * @param {String} listId Target List listId
        * @returns {HTMLElement} List HTML Element with list-id attribut equal to listId param
@@ -711,7 +750,17 @@ const joKanban = {
 
         response = await joKanban.api.tag.updateTagToAPI(tag);
         if (response) {
-          joKanban.domUpdates.updateTagInDom(tag);
+          joKanban.domUpdates.updateTagInMenu(tag);
+          const cardsUpdate = joKanban.getDataCardByTagId(tag.id);
+          cardsUpdate.forEach(async (card) => {
+            const cardUpdate = await joKanban.api.card.getCardByIdFromAPI(card.id);
+            const list = joKanban.getDataListById(card.list_id);
+            list.cards.filter((cardList) => {
+              return cardList.id != card.id;
+            })
+            list.cards.push(cardUpdate);
+            joKanban.domUpdates.refreshCardTagsInDom(cardUpdate, list);
+          });
         } else {
           const target_tag = joKanban.domUpdates.tools.queryTagElmtInMenuById(tag.id);
           tag.name = target_tag.querySelector('a[tag-id]').textContent;
@@ -730,7 +779,17 @@ const joKanban = {
           joKanban.tags = joKanban.tags.filter((tag) => {
             return tag.id != tagId;
           });
-          joKanban.domUpdates.deleteTagInDOM(tag);
+          joKanban.domUpdates.deleteTagInMenu(tag);
+          const cardsUpdate = joKanban.getDataCardByTagId(tag.id);
+          cardsUpdate.forEach(async (card) => {
+            const cardUpdate = await joKanban.api.card.getCardByIdFromAPI(card.id);
+            const list = joKanban.getDataListById(card.list_id);
+            list.cards.filter((cardList) => {
+              return cardList.id != card.id;
+            })
+            list.cards.push(cardUpdate);
+            joKanban.domUpdates.refreshCardTagsInDom(cardUpdate, list);
+          });
         }
       },
 
@@ -903,22 +962,22 @@ const joKanban = {
     },
 
     /**
-     * @method updateTagInDom Update a card in DOM.
+     * @method updateTagInMenu Update a card in DOM.
      * @param {all} tag tag object
      */
-    async updateTagInDom(tag) {
+    async updateTagInMenu(tag) {
       const target_tag = joKanban.domUpdates.tools.queryTagElmtInMenuById(tag.id);
       const buttonElmt = target_tag.querySelector('a[tag-id]');
-      
+
       buttonElmt.textContent = tag.name;
       buttonElmt.style.background = tag.color;
     },
 
     /**
-     * @method deleteTagInDOM Delete a Tag in DOM
+     * @method deleteTagInMenu Delete a Tag in DOM
      * @param {all} tag Tag object
      */
-    async deleteTagInDOM(tag) {
+    async deleteTagInMenu(tag) {
       const target_tag = joKanban.domUpdates.tools.queryTagElmtInMenuById(tag.id);
       target_tag.remove();
     },
@@ -955,6 +1014,34 @@ const joKanban = {
       if (card.tags.length == 0) {
         const target_card = joKanban.domUpdates.tools.queryCardElmtById(card.id);
         const containerTagsInCard = target_card.querySelector('.tags-container');
+        containerTagsInCard.closest('nav').classList.add('is-hidden');
+      }
+    },
+
+    /**
+     * @method refreshCardTagsInDom Refresh Tags in a Card in DOM
+     * @param {all} card Card object
+     * @param {all} list List object
+     */
+    async refreshCardTagsInDom(card, list) {
+      const target_card = joKanban.domUpdates.tools.queryCardElmtById(card.id);
+      const containerTagsInCard = target_card.querySelector('.tags-container');
+
+      joKanban.domUpdates.tools.removeAllChildHTMLElement(containerTagsInCard);
+
+      card.tags.forEach((tag) => {
+        if ("content" in document.createElement('template')) {
+          const tagFragment = document.importNode(joKanban.elements.templateTagCard.content, true);
+          const tagElmt = tagFragment.querySelector('a[tagcard-id]');
+          tagElmt.setAttribute('tagcard-id', tag.id);
+          tagElmt.textContent = tag.name;
+          tagElmt.style.background = tag.color;
+          tagElmt.addEventListener('dblclick', joKanban.handleEvent.dblClickOnTagCard(tag.id, card.id, list.id));
+          containerTagsInCard.appendChild(tagFragment);
+          containerTagsInCard.closest('nav').classList.remove('is-hidden');
+        }
+      });
+      if (card.tags.length == 0) {
         containerTagsInCard.closest('nav').classList.add('is-hidden');
       }
     },
